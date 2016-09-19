@@ -188,7 +188,7 @@ public class MainActivity extends BaseActivity{
             }
         });
     }
-    boolean mIsLiveStreaming = false;
+//    boolean mIsLiveStreaming = false;
     public void start_live_streaming_impl()
     {
 
@@ -200,9 +200,12 @@ public class MainActivity extends BaseActivity{
 
             @Override
             public void ok(HashMap<String, Object> result) {
-                if (mIsLiveStreaming)
-                    return;
-                mIsLiveStreaming = true;
+//                if (mIsLiveStreaming)
+//                {
+//                    Log.d(ConstInfo.TAG, "popup_room_input_win is running, so exit this time");
+//                    return;
+//                }
+//                mIsLiveStreaming = true;
                 final int type = (int)result.get("type");
                 final String liveid = (String)result.get("liveid");
                 showLoading("");
@@ -230,7 +233,7 @@ public class MainActivity extends BaseActivity{
                             else
                                 Toast.makeText(getApplication(), "创建直播失败: 网络错误", Toast.LENGTH_SHORT).show();
                         }
-                        mIsLiveStreaming = false;
+//                        mIsLiveStreaming = false;
                     }
                 });
             }

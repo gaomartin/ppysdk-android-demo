@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.UUID;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.HttpException;
@@ -126,8 +128,19 @@ public class PPYRestApi {
         return PPYUN_HOST + relativeUrl;
     }
 
+    private static HashMap<String, StringResultCallack> mMapResult = new HashMap<>();
     public static void stream_create(String liveid, final StringResultCallack resultCallack)
     {
+        synchronized (mMapResult)
+        {
+            for (String id : mMapResult.keySet())
+            {
+                mMapResult.put(id, null);
+            }
+        }
+        final String uuid = UUID.randomUUID().toString();
+        mMapResult.put(uuid, resultCallack);
+
         PPYRestApi.asyn_http_get(STREAM_CREATE, liveid, new StringResultCallack() {
             @Override
             public void result(int errcode, String response) {
@@ -142,21 +155,27 @@ public class PPYRestApi {
                             String publicUrl = data.getString("pushUrl");
                             String token = data.getString("token");
 
-                            if (resultCallack != null)
-                                resultCallack.result(0, publicUrl + "/" + token);
+                            StringResultCallack targetResult = mMapResult.get(uuid);
+                            if (targetResult != null)
+                                targetResult.result(0, publicUrl + "/" + token);
+                            mMapResult.remove(uuid);
                             return;
                         }
                         else
                         {
                             String msg = s.getString("msg");
-                            if (resultCallack != null)
-                                resultCallack.result(err, msg);
+                            StringResultCallack targetResult = mMapResult.get(uuid);
+                            if (targetResult != null)
+                                targetResult.result(err, msg);
+                            mMapResult.remove(uuid);
                             return;
                         }
                     }
                 }
-                if (resultCallack != null)
-                    resultCallack.result(errcode, "");
+                StringResultCallack targetResult = mMapResult.get(uuid);
+                if (targetResult != null)
+                    targetResult.result(errcode, "");
+                mMapResult.remove(uuid);
             }
         });
     }

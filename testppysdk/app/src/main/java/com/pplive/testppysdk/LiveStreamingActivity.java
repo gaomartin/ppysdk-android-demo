@@ -530,6 +530,7 @@ public class LiveStreamingActivity extends Activity {
 
                     @Override
                     public void ok() {
+                        PPYStream.getInstance().OnPause();
                         StopStream();
 
                         PPYRestApi.stream_stop(mLiveId, null);
