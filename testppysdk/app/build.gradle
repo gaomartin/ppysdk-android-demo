@@ -1,0 +1,50 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion '24.0.1'
+
+    defaultConfig {
+        applicationId "com.pplive.testppysdk"
+        minSdkVersion 15
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    signingConfigs{
+        MysigningConfigs{
+            storeFile file("test.jks")
+            storePassword "123456"
+            keyAlias "pptv"
+            keyPassword "123456"
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.MysigningConfigs
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ["/src/main/java"]
+            jniLibs.srcDirs = ["/src/main/jniLibs"]
+        }
+    }
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile(name: 'sdk-debug', ext: 'aar')
+    compile 'com.loopj.android:android-async-http:1.4.9'
+    compile 'com.alibaba:fastjson:1.2.15'
+    compile 'com.android.support:appcompat-v7:24.1.1'
+}

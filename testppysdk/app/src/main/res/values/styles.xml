@@ -1,0 +1,42 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+
+    <style name="dialogcustom" parent="android:style/Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+    </style>
+
+    <style name="dialogcustom2" parent="android:style/Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+    </style>
+
+	<style name="ImageTranslucentTheme" parent="@android:style/Theme.NoTitleBar.Fullscreen">
+		<!--在Android 4.4之前的版本上运行，直接跟随系统主题-->
+	</style>
+    <!--<style name="searchInputEdit">-->
+        <!--<item name="android:textColorHint">@color/color_200_200_200</item>-->
+        <!--<item name="android:background">@null</item>-->
+        <!--<item name="android:textCursorDrawable">@drawable/cursor_color</item>-->
+        <!--<item name="android:textColor">@color/color_150_150_150</item>-->
+        <!--<item name="android:textSize">@dimen/text_size_28</item>-->
+    <!--</style>-->
+</resources>
