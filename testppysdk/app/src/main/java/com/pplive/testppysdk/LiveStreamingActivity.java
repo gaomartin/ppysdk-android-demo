@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Debug;
@@ -23,6 +25,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,6 +34,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -127,7 +131,9 @@ public class LiveStreamingActivity extends Activity {
     PPYSurfaceView mCameraView;
     boolean mIsStreamingStart = false;
     boolean mIsStartTipNetwork = false;
-
+    boolean mIsStopReconnect = false;
+    long mLastStopTime = 0;
+    final long MAX_STOP_TIME = 3*60*1000; // 3分钟
     int mType = 1;
     Handler mHandle = new Handler();
 
@@ -176,49 +182,78 @@ public class LiveStreamingActivity extends Activity {
         textView.setText(getString(R.string.liveid_tip, mLiveId));
 
         mDataTipTextview = (TextView)findViewById(R.id.msg_tip);
-        registerBaseBoradcastReceiver(true);
 
         InitStream();
     }
 
+    boolean mIsStartCheckStatus = false;
     void checkNetwork()
     {
+        mLastStopTime = 0;
         if (NetworkUtils.isNetworkAvailable(getApplicationContext()))
         {
-            if (NetworkUtils.isMobileNetwork(getApplicationContext()))
+            if (mIsStartCheckStatus)
             {
-                if (mIsStartTipNetwork)
-                {
-                    Log.d(ConstInfo.TAG, "connect change mobile network avilable tip alert is start, so exit this time");
-                    return;
+                Log.d(ConstInfo.TAG, "connect change network avilable and check status is already start, so exit this time");
+                return;
+            }
+            mIsStartCheckStatus = true;
+            PPYRestApi.stream_status(mLiveId, new PPYRestApi.StringResultCallack() {
+                @Override
+                public void result(int errcode, String data) {
+                    mIsStartCheckStatus = false;
+                    Log.d(ConstInfo.TAG, "connect change network avilable GET stream_status errcode="+errcode+" status="+data);
+                    if (errcode == 0)
+                    {
+                        if (data.equals("stopped"))
+                        {
+                            show_play_end_popup();
+                        }
+                        else
+                        {
+                            if (NetworkUtils.isMobileNetwork(getApplicationContext()))
+                            {
+                                if (mIsStartTipNetwork)
+                                {
+                                    Log.d(ConstInfo.TAG, "connect change mobile network avilable tip alert is start, so exit this time");
+                                    return;
+                                }
+                                mIsStartTipNetwork = true;
+                                Log.d(ConstInfo.TAG, "connect change mobile network avilable, show tip alert");
+                                ConstInfo.showDialog(LiveStreamingActivity.this, "您当前使用的是移动数据，确定开播吗？", "", "取消", "确定", new AlertDialogResultCallack() {
+                                    @Override
+                                    public void cannel() {
+                                        PPYStream.getInstance().OnPause();
+
+                                        PPYRestApi.stream_stop(mLiveId, null);
+                                        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
+                                        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
+                                        AppSettingMode.setIntSetting(LiveStreamingActivity.this, "last_type", 0);
+
+                                        registerBaseBoradcastReceiver(false);
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void ok() {
+                                        Log.d(ConstInfo.TAG, "connect change mobile network avilable, use mobile ok");
+                                        StartStream();
+                                        mIsStartTipNetwork = false;
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                Log.d(ConstInfo.TAG, "connect change wiff network avilable");
+                                StartStream();
+                            }
+
+                        }
+                    }
+                    else
+                        show_play_end_popup();
                 }
-                mIsStartTipNetwork = true;
-                Log.d(ConstInfo.TAG, "connect change mobile network avilable, show tip alert");
-                ConstInfo.showDialog(LiveStreamingActivity.this, "您当前使用的是移动数据，确定开播吗？", "", "取消", "确定", new AlertDialogResultCallack() {
-                    @Override
-                    public void cannel() {
-                        PPYRestApi.stream_stop(mLiveId, null);
-                        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
-                        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
-                        AppSettingMode.setIntSetting(LiveStreamingActivity.this, "last_type", 0);
-
-                        registerBaseBoradcastReceiver(false);
-                        finish();
-                    }
-
-                    @Override
-                    public void ok() {
-                        Log.d(ConstInfo.TAG, "connect change mobile network avilable, use mobile ok");
-                        StartStream();
-                        mIsStartTipNetwork = false;
-                    }
-                });
-            }
-            else
-            {
-                Log.d(ConstInfo.TAG, "connect change wiff network avilable");
-                StartStream();
-            }
+            });
         }
         else
         {
@@ -291,7 +326,13 @@ public class LiveStreamingActivity extends Activity {
                     if (i == PPYStatusListener.PPY_SDK_INIT_SUCC)
                     {
                         Log.d(ConstInfo.TAG, "camera init success, start stream");
-                        checkNetwork();
+                        long currentTime = System.currentTimeMillis();
+                        if (mLastStopTime != 0 && (currentTime - mLastStopTime > MAX_STOP_TIME))
+                        {
+                            show_play_end_popup();
+                        }
+                        else
+                            checkNetwork();
                     }
                     else if (i == PPY_STREAM_STOP_EXPECTION)
                     {
@@ -432,6 +473,7 @@ public class LiveStreamingActivity extends Activity {
         super.onResume();
         Log.d(ConstInfo.TAG, "onResume");
         PPYStream.getInstance().OnResume();
+        registerBaseBoradcastReceiver(true);
     }
 
     @Override
@@ -441,6 +483,9 @@ public class LiveStreamingActivity extends Activity {
         Log.d(ConstInfo.TAG, "onPause");
         PPYStream.getInstance().OnPause();
         StopStream();
+        mLastStopTime = System.currentTimeMillis();
+        registerBaseBoradcastReceiver(false);
+
     }
 
     @Override
@@ -593,6 +638,7 @@ public class LiveStreamingActivity extends Activity {
 
             @Override
             public void ok() {
+                PPYStream.getInstance().OnPause();
                 StopStream();
 
                 PPYRestApi.stream_stop(mLiveId, null);
@@ -679,4 +725,65 @@ public class LiveStreamingActivity extends Activity {
         if (mDataTipButton != null)
             mDataTipButton.setBackgroundResource(imgID);
     }
+
+
+    PopupWindow mPlayEndPopupWindow;
+    public void show_play_end_popup()
+    {
+        if (mPlayEndPopupWindow == null)
+            create_play_end_popup(null);
+        if (mPlayEndPopupWindow != null && !mPlayEndPopupWindow.isShowing())
+            mPlayEndPopupWindow.showAtLocation(mCloseButton, Gravity.CENTER, 0, 0);
+    }
+    public void hide_play_end_popup()
+    {
+        if (mPlayEndPopupWindow != null)
+            mPlayEndPopupWindow.dismiss();
+    }
+    private void create_play_end_popup(final AlertDialogResult3Callack result2Callack)
+    {
+        LayoutInflater layoutInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final RelativeLayout dialogView = (RelativeLayout)layoutInflater.inflate(R.layout.layout_play_end, null);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.popup_bg);
+        ImageButton close = (ImageButton)dialogView.findViewById(R.id.close);
+        ImageView bg = (ImageView)dialogView.findViewById(R.id.bg);
+        Bitmap fastblurBitmap = ConstInfo.fastblur(bitmap, 20);
+        bg.setImageBitmap(fastblurBitmap);
+
+        mPlayEndPopupWindow = new PopupWindow(dialogView, RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
+        //在PopupWindow里面就加上下面代码，让键盘弹出时，不会挡住pop窗口。
+        mPlayEndPopupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+        mPlayEndPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        //点击空白处时，隐藏掉pop窗口
+        mPlayEndPopupWindow.setFocusable(true);
+        mPlayEndPopupWindow.setBackgroundDrawable(new BitmapDrawable());
+
+        mPlayEndPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                finish();
+            }
+        });
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPlayEndPopupWindow.dismiss();
+            }
+        });
+        dialogView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch(keyCode) {
+                        case KeyEvent.KEYCODE_BACK:
+                            mPlayEndPopupWindow.dismiss();
+                            return false;
+                    }
+                }
+                return true;
+            }
+        });
+
+    }
+
 }
