@@ -131,7 +131,7 @@ public class LiveStreamingActivity extends Activity {
     PPYSurfaceView mCameraView;
     boolean mIsStreamingStart = false;
     boolean mIsStartTipNetwork = false;
-    boolean mIsStopReconnect = false;
+    boolean mIsInBackground = false;
     long mLastStopTime = 0;
     final long MAX_STOP_TIME = 3*60*1000; // 3分钟
     int mType = 1;
@@ -182,14 +182,13 @@ public class LiveStreamingActivity extends Activity {
         textView.setText(getString(R.string.liveid_tip, mLiveId));
 
         mDataTipTextview = (TextView)findViewById(R.id.msg_tip);
-
+        registerBaseBoradcastReceiver(true);
         InitStream();
     }
 
     boolean mIsStartCheckStatus = false;
     void checkNetwork()
     {
-        mLastStopTime = 0;
         if (NetworkUtils.isNetworkAvailable(getApplicationContext()))
         {
             if (mIsStartCheckStatus)
@@ -223,14 +222,10 @@ public class LiveStreamingActivity extends Activity {
                                 ConstInfo.showDialog(LiveStreamingActivity.this, "您当前使用的是移动数据，确定开播吗？", "", "取消", "确定", new AlertDialogResultCallack() {
                                     @Override
                                     public void cannel() {
-                                        PPYStream.getInstance().OnPause();
+//                                        PPYStream.getInstance().OnPause();
+//
+//                                        PPYRestApi.stream_stop(mLiveId, null);
 
-                                        PPYRestApi.stream_stop(mLiveId, null);
-                                        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
-                                        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
-                                        AppSettingMode.setIntSetting(LiveStreamingActivity.this, "last_type", 0);
-
-                                        registerBaseBoradcastReceiver(false);
                                         finish();
                                     }
 
@@ -329,10 +324,14 @@ public class LiveStreamingActivity extends Activity {
                         long currentTime = System.currentTimeMillis();
                         if (mLastStopTime != 0 && (currentTime - mLastStopTime > MAX_STOP_TIME))
                         {
+                            PPYRestApi.stream_stop(mLiveId, null);
                             show_play_end_popup();
                         }
                         else
+                        {
+                            mLastStopTime = 0;
                             checkNetwork();
+                        }
                     }
                     else if (i == PPY_STREAM_STOP_EXPECTION)
                     {
@@ -455,6 +454,8 @@ public class LiveStreamingActivity extends Activity {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                if (mIsInBackground)
+                    return;
                 Log.d(ConstInfo.TAG, "connect change");
                 checkNetwork();
             }
@@ -473,7 +474,7 @@ public class LiveStreamingActivity extends Activity {
         super.onResume();
         Log.d(ConstInfo.TAG, "onResume");
         PPYStream.getInstance().OnResume();
-        registerBaseBoradcastReceiver(true);
+        mIsInBackground = false;
     }
 
     @Override
@@ -484,8 +485,7 @@ public class LiveStreamingActivity extends Activity {
         PPYStream.getInstance().OnPause();
         StopStream();
         mLastStopTime = System.currentTimeMillis();
-        registerBaseBoradcastReceiver(false);
-
+        mIsInBackground = true;
     }
 
     @Override
@@ -493,6 +493,15 @@ public class LiveStreamingActivity extends Activity {
     {
         super.onDestroy();
         Log.d(ConstInfo.TAG, "onDestroy");
+
+        PPYRestApi.stream_stop(mLiveId, null);
+
+        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
+        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
+        AppSettingMode.setIntSetting(LiveStreamingActivity.this, "last_type", 0);
+
+        registerBaseBoradcastReceiver(false);
+
         PPYStream.getInstance().setPPYStatusListener(null);
         PPYStream.getInstance().OnDestroy();
     }
@@ -575,15 +584,10 @@ public class LiveStreamingActivity extends Activity {
 
                     @Override
                     public void ok() {
-                        PPYStream.getInstance().OnPause();
-                        StopStream();
+                        //PPYStream.getInstance().OnPause();
+                        //StopStream();
 
-                        PPYRestApi.stream_stop(mLiveId, null);
-                        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
-                        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
-                        AppSettingMode.setIntSetting(LiveStreamingActivity.this, "last_type", 0);
-
-                        registerBaseBoradcastReceiver(false);
+//                        PPYRestApi.stream_stop(mLiveId, null);
                         finish();
                     }
                 });
@@ -638,29 +642,14 @@ public class LiveStreamingActivity extends Activity {
 
             @Override
             public void ok() {
-                PPYStream.getInstance().OnPause();
-                StopStream();
-
-                PPYRestApi.stream_stop(mLiveId, null);
-                AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
-                AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
-                AppSettingMode.setIntSetting(LiveStreamingActivity.this, "last_type", 0);
-
-                registerBaseBoradcastReceiver(false);
+//                PPYStream.getInstance().OnPause();
+//                StopStream();
+//
+//                PPYRestApi.stream_stop(mLiveId, null);
                 finish();
             }
         });
 
-//        StopStream();
-//
-//        PPYRestApi.stream_stop(mLiveId, null);
-//        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
-//        AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
-//        AppSettingMode.setIntSetting(LiveStreamingActivity.this, "last_type", 0);
-//
-//        registerBaseBoradcastReceiver(false);
-//
-//        super.onBackPressed();
     }
 
     private void updateMuteButtonStatus()
