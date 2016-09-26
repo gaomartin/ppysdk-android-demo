@@ -1,7 +1,6 @@
 package com.pplive.testppysdk;
 
 import android.app.Application;
-import android.pplive.media.MeetSDK;
 
 import com.pplive.ppysdk.PPYStream;
 
@@ -24,7 +23,6 @@ public class TestApplication extends Application {
         if (!file.exists()) {
             file.mkdirs();
         }
-        MeetSDK.setLogPath(path + "/meetplayer.log", path + "/");
-        MeetSDK.initSDK(this);
+
     }
 }

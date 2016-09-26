@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
-import android.pplive.media.player.MediaInfo;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -155,17 +154,21 @@ public class LiveStreamingActivity extends Activity {
             int fps = PPYStream.getInstance().getVideoFrameRate();
             int vdeio_w = PPYStream.getInstance().getVideoWdith();
             int video_h = PPYStream.getInstance().getVideoHeight();
-            String str = String.format(getString(R.string.data_tip), videobitrate, (int)fps, vdeio_w, video_h);
+            String str = String.format(getString(R.string.live_data_tip), videobitrate, (int)fps, vdeio_w, video_h);
             mDataTipTextview.setText(str);
         }
     }
+    ScreenWake mScreenWake = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
         setContentView(R.layout.live_streaming_activity);
 
+        mScreenWake = new ScreenWake(getApplicationContext());
         initView();
 
         mLiveId = getIntent().getStringExtra("liveid");
@@ -197,14 +200,14 @@ public class LiveStreamingActivity extends Activity {
                 return;
             }
             mIsStartCheckStatus = true;
-            PPYRestApi.stream_status(mLiveId, new PPYRestApi.StringResultCallack() {
+            PPYRestApi.stream_status(mLiveId, new PPYRestApi.StringResultStatusCallack() {
                 @Override
-                public void result(int errcode, String data) {
+                public void result(int errcode, String livestatus, String streamstatus) {
                     mIsStartCheckStatus = false;
-                    Log.d(ConstInfo.TAG, "connect change network avilable GET stream_status errcode="+errcode+" status="+data);
-                    if (errcode == 0)
+                    Log.d(ConstInfo.TAG, "connect change network avilable GET stream_status errcode="+errcode+" livestatus="+livestatus);
+                    if (errcode == 0 && livestatus != null)
                     {
-                        if (data.equals("stopped"))
+                        if (livestatus.equals("stopped"))
                         {
                             show_play_end_popup();
                         }
@@ -338,7 +341,7 @@ public class LiveStreamingActivity extends Activity {
                         //Toast.makeText(getApplication(), "网络异常，正在尝试重新连接", Toast.LENGTH_SHORT).show();
                         if (!mIsReconnectTime)
                         {
-                            mMsgTextview.setText("当前网络环境异常，正在重新连接");
+                            mMsgTextview.setText(getString(R.string.network_reconnect));
                             mMsgTextview.setVisibility(View.VISIBLE);
                             mHandle.postDelayed(mHideMsgRunable, 3000);
                         }
@@ -347,7 +350,23 @@ public class LiveStreamingActivity extends Activity {
                     {
                         mIsReconnectTime = false;
                         //Toast.makeText(getApplication(), "网络恢复，推流成功", Toast.LENGTH_SHORT).show();
-                        mMsgTextview.setText("推流成功");
+                        mMsgTextview.setText(getString(R.string.push_stream_ok));
+                        mMsgTextview.setVisibility(View.VISIBLE);
+                        mHandle.postDelayed(mHideMsgRunable, 3000);
+                    }
+                    else if (i == PPY_STREAM_DOWN_BITRATE)
+                    {
+                        mIsReconnectTime = false;
+                        //Toast.makeText(getApplication(), "网络恢复，推流成功", Toast.LENGTH_SHORT).show();
+                        mMsgTextview.setText("当前网络较差，已为你降低码率直播");
+                        mMsgTextview.setVisibility(View.VISIBLE);
+                        mHandle.postDelayed(mHideMsgRunable, 3000);
+                    }
+                    else if (i == PPY_STREAM_UP_BITRATE)
+                    {
+                        mIsReconnectTime = false;
+                        //Toast.makeText(getApplication(), "网络恢复，推流成功", Toast.LENGTH_SHORT).show();
+                        mMsgTextview.setText("当前网络较好，已为你提升码率直播");
                         mMsgTextview.setVisibility(View.VISIBLE);
                         mHandle.postDelayed(mHideMsgRunable, 3000);
                     }
@@ -432,7 +451,10 @@ public class LiveStreamingActivity extends Activity {
             } else
             {
                 // Permission Denied
-                Toast.makeText(LiveStreamingActivity.this, "相机权限不够", Toast.LENGTH_SHORT).show();
+                mMsgTextview.setText("相机权限不够");
+                mMsgTextview.setVisibility(View.VISIBLE);
+                mHandle.removeCallbacks(mHideMsgRunable);
+                //Toast.makeText(LiveStreamingActivity.this, "相机权限不够", Toast.LENGTH_SHORT).show();
             }
             return;
         }
@@ -472,6 +494,8 @@ public class LiveStreamingActivity extends Activity {
     protected void onResume()
     {
         super.onResume();
+        mScreenWake.disable();
+
         Log.d(ConstInfo.TAG, "onResume");
         PPYStream.getInstance().OnResume();
         mIsInBackground = false;
@@ -481,6 +505,8 @@ public class LiveStreamingActivity extends Activity {
     protected void onPause()
     {
         super.onPause();
+        mScreenWake.enable();
+
         Log.d(ConstInfo.TAG, "onPause");
         PPYStream.getInstance().OnPause();
         StopStream();

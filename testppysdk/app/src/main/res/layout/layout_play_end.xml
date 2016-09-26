@@ -14,7 +14,7 @@
         android:layout_width="@dimen/button_small_icon_size"
         android:layout_height="@dimen/button_small_icon_size"
         android:id="@+id/close"
-
+        android:layout_marginRight="5dp"
         android:background="@drawable/close"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"/>
@@ -36,6 +36,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/textview_error_msg"
                 android:textColor="@color/color_E0FFFFFF"
                 android:text="直播已结束"
                 android:textSize="34sp"

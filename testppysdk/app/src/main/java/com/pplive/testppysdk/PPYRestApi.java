@@ -41,6 +41,10 @@ public class PPYRestApi {
     {
         void result(int errcode, String rtmpurl, String live2url);
     }
+    public interface StringResultStatusCallack
+    {
+        void result(int errcode, String livestatus, String streamstatus);
+    }
     private static String sync_http_get(String strUrl)
     {
         Log.d(ConstInfo.TAG, "get url: " + strUrl);
@@ -268,7 +272,7 @@ public class PPYRestApi {
         });
     }
 
-    public static void stream_status(String liveid, final StringResultCallack resultCallack)
+    public static void stream_status(String liveid, final StringResultStatusCallack resultCallack)
     {
         PPYRestApi.asyn_http_get(STREAM_STATUS, liveid, new StringResultCallack() {
             @Override
@@ -278,23 +282,28 @@ public class PPYRestApi {
                     if (s != null) {
                         int err = s.getIntValue("err");
                         if (err == 0) {
+
                             JSONObject data = s.getJSONObject("data");
                             String liveStatus = data.getString("liveStatus");
+                            String streamStatus = data.getString("streamStatus");
                             if (resultCallack != null)
-                                resultCallack.result(0, liveStatus);
+                            {
+
+                                resultCallack.result(0, liveStatus, streamStatus);
+                            }
                             return;
                         }
                         else
                         {
                             String msg = s.getString("msg");
                             if (resultCallack != null)
-                                resultCallack.result(err,msg);
+                                resultCallack.result(err,"", "");
                             return;
                         }
                     }
                 }
                 if (resultCallack != null)
-                    resultCallack.result(errcode, "");
+                    resultCallack.result(errcode, "", "");
             }
         });
     }

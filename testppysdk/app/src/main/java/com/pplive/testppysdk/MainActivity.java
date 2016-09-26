@@ -251,14 +251,14 @@ public class MainActivity extends BaseActivity{
         else
         {
             showLoading("");
-            PPYRestApi.stream_status(last_liveid, new PPYRestApi.StringResultCallack() {
+            PPYRestApi.stream_status(last_liveid, new PPYRestApi.StringResultStatusCallack() {
                 @Override
-                public void result(int errcode, String data) {
+                public void result(int errcode,String livestatus, String streamstatus) {
                     hideLoading();
-                    Log.d(ConstInfo.TAG, "GET stream_status errcode="+errcode+" status="+data);
-                    if (errcode == 0)
+                    Log.d(ConstInfo.TAG, "GET stream_status errcode="+errcode+" livestatus="+livestatus);
+                    if (errcode == 0 && livestatus != null && streamstatus != null)
                     {
-                        if (!data.equals("stopped"))
+                        if (!livestatus.equals("stopped"))
                         {
                             Log.d(ConstInfo.TAG, "GET stream_status last liveid="+last_liveid+" is ok");
                             MainActivity.this.runOnUiThread(new Runnable() {

@@ -231,51 +231,6 @@ public class ConstInfo {
         mPopupWindow.showAtLocation(locationView, Gravity.CENTER, 0, 0);
     }
 
-    public static void showEditDialog2(Activity context, final AlertDialogResult2Callack callback) {
-        if(context!=null && context instanceof Activity) {
-            Activity activity = (Activity)context;
-            if(activity.isFinishing()) {
-                return;
-            }
-        }
-        LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        RelativeLayout dialogView = (RelativeLayout)layoutInflater.inflate(R.layout.layout_room_dialog, null);
-
-        PopupWindow mPopupWindow = new PopupWindow(dialogView, RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
-        mPopupWindow.showAtLocation(context.findViewById(R.id.live_player_videoview), Gravity.CENTER, 0, 0);
-
-//        final EditText _liveid = (EditText)dialogView.findViewById(R.id.liveid);
-//
-////        Button _ok = (Button)dialogView.findViewById(R.id.ok);
-////        Button _cannel = (Button)dialogView.findViewById(R.id.cannel);
-//        final Dialog mPopupWindow = new Dialog(context, R.style.dialogcustom2);
-//        WindowManager.LayoutParams lp = mPopupWindow.getWindow().getAttributes();
-//        lp.dimAmount = 0.5f;
-//        lp.gravity = Gravity.CENTER;
-//        mPopupWindow.getWindow().setAttributes(lp);
-//        mPopupWindow.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-//        mPopupWindow.setContentView(dialogView);
-//        mPopupWindow.setCanceledOnTouchOutside(true);
-//
-//        _ok.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mPopupWindow.dismiss();
-//                if (callback != null)
-//                    callback.ok(_liveid.getText().toString());
-//            }
-//        });
-//        _cannel.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mPopupWindow.dismiss();
-//                if (callback != null)
-//                    callback.cannel();
-//            }
-//        });
-//        mPopupWindow.show();
-    }
-
     /*
      * This method was copied from http://stackoverflow.com/a/10028267/694378.
      * The only modifications I've made are to remove a couple of Log

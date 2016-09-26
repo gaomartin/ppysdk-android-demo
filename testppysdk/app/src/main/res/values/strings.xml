@@ -5,9 +5,15 @@
     <string name="known">知道了</string>
     <string name="cannel">取消</string>
     <string name="liveid_tip"><data><![CDATA[房间号: %s]]></data></string>
-    <string name="data_tip"><data><![CDATA[码率: %1$d kbs\n帧率: %2$d fps\n视频大小: %3$d x %4$d]]></data></string>
+    <string name="watch_data_tip"><data><![CDATA[码率: %1$d kbs\n帧率: %2$d fps\n视频大小: %3$d x %4$d\n直播延时: %5$d\n播放类型: %6$s]]></data></string>
+    <string name="live_data_tip"><data><![CDATA[码率: %1$d kbs\n帧率: %2$d fps\n视频大小: %3$d x %4$d]]></data></string>
     <string name="no_network">世界上最遥远的距离就是断网,请检查您\n的网络设置,网络恢复后将为您重新连接</string>
     <string name="network_reconnect">网络异常，正在尝试重新连接</string>
     <string name="network_try_reconnect">网络异常，正在尝试重新连接</string>
     <string name="get_stream_ok">拉流成功</string>
+    <string name="push_stream_ok">推流成功</string>
+    <string name="mobile_network_tip">您当前使用的是移动数据，确定开播吗？</string>
+    <string name="mobile_network_play_tip">您当前使用的是移动数据，确定继续播放吗？</string>
+    <string name="buffer_start">网络有些卡顿，正在拼命缓冲中...</string>
+    <string name="stream_error">主播离开一会，请不要走开</string>
 </resources>

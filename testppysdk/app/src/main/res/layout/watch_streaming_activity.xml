@@ -5,15 +5,14 @@
     android:layout_height="match_parent"
     android:background="@android:color/black"
     android:fitsSystemWindows="true"
+    android:id="@+id/root_view"
     tools:context="com.pplive.testppysdk.WatchStreamingActivity">
 
-    <android.pplive.media.player.MeetVideoView
+    <android.slkmedia.mediaplayer.VideoView
         android:id="@+id/live_player_videoview"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true" />
-
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -43,6 +42,7 @@
             android:layout_height="@dimen/button_small_icon_size"
             android:id="@+id/lsq_closeButton"
             android:background="@drawable/close"
+            android:layout_marginRight="5dp"
             android:layout_gravity="center_vertical|right"/>
     </LinearLayout>
     <TextView
@@ -84,10 +84,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" android:orientation="horizontal"
             android:paddingBottom="10dp"
+            android:layout_marginBottom="10dp"
             android:paddingTop="10dp">
             <Button
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="60dp"
+                android:layout_height="@dimen/button_small_icon_size"
+                android:id="@+id/button_url_type"
+                android:layout_marginLeft="10dp"
+                android:visibility="gone"
+                android:background="@drawable/rtmp"
+                />
+            <Button
+                android:layout_width="@dimen/button_small_icon_size"
+                android:layout_height="@dimen/button_small_icon_size"
                 android:id="@+id/button_data_tip"
                 android:layout_marginLeft="10dp"
                 android:background="@drawable/data_tip_open"
