@@ -20,5 +20,6 @@
     <string name="stream_bitrate_up">当前网络较好，已为你提升码率直播</string>
     <string name="close_tip">确定要关闭直播吗？</string>
     <string name="camera_premission_fail">相机权限不够</string>
+    <string name="loading_tip">正在拼命加载...</string>
 
 </resources>

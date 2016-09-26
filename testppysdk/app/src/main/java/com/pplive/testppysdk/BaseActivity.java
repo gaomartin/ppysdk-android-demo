@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class BaseActivity extends Activity {
@@ -44,10 +46,11 @@ public class BaseActivity extends Activity {
         Dialog mPopupWindow = new Dialog(context, R.style.dialogcustom);
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(LAYOUT_INFLATER_SERVICE);
         View contentView = inflater.inflate(R.layout.layout_loading_toast_small, null);
-//        if (!TextUtils.isEmpty(tip)) {
-//            TextView title = (TextView) contentView.findViewById(R.id.title);
-//            title.setText(tip);
-//        }
+        if (!TextUtils.isEmpty(tip))
+        {
+            TextView title = (TextView) contentView.findViewById(R.id.title);
+            title.setText(tip);
+        }
         mPopupWindow.setContentView(contentView);
 
         WindowManager.LayoutParams lp = mPopupWindow.getWindow().getAttributes();

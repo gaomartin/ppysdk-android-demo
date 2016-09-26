@@ -55,7 +55,7 @@ public class WatchStreamingActivity extends BaseActivity{
     TextView liveid_tip;
     TextView msg_data_tip;
     private TextView mMsgTextview;
-    private boolean mIsPlayEnd;
+    private boolean mIsPlayEnd = false;
     Handler mHandle = new Handler();
     Runnable mHideMsgRunable = new Runnable() {
         @Override
@@ -264,15 +264,6 @@ public class WatchStreamingActivity extends BaseActivity{
         mHandle.postDelayed(mUpdateDataTipRunable, 1000);
 
         registerBaseBoradcastReceiver(true);
-//        mHandle.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                showLoading("");
-//                start_play();
-//            }
-//        }, 300);
-//        showLoading("");
-//        start_play();
     }
 
     private void checkStreamStatus(final boolean need_reconnect)
@@ -449,18 +440,18 @@ public class WatchStreamingActivity extends BaseActivity{
         Log.d(ConstInfo.TAG, "onResume");
         mIsInBackground = false;
         if (mIsAlreadyPlay)
-            mVideoView.start();
+            start_play();
     }
 
     @Override
     protected void onPause()
     {
         super.onPause();
-        Log.d(ConstInfo.TAG, "onPause");
+        Log.d(ConstInfo.TAG, "onPause mIsPlayStart="+mIsPlayStart+" mIsAlreadyPlay="+mIsAlreadyPlay);
         //mLastStopTime = System.currentTimeMillis();
         mIsInBackground = true;
-        if (mIsPlayStart && mIsAlreadyPlay)
-            mVideoView.pause();
+        if (mIsAlreadyPlay)
+            stop_play();
     }
 
     PopupWindow mPlayErrorPopupWindow;
@@ -589,6 +580,8 @@ public class WatchStreamingActivity extends BaseActivity{
 
     private void reconnect()
     {
+        if (mIsPlayEnd)
+            return;
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -610,13 +603,13 @@ public class WatchStreamingActivity extends BaseActivity{
     boolean mIsFirst = true;
     private void start_play()
     {
-        if (mIsPlayStart)
+        if (mIsPlayStart || mIsPlayEnd)
             return;
         mIsPlayStart = true;
         Log.d(ConstInfo.TAG, "start_play");
         if (mIsFirst)
         {
-            showLoading("");
+            showLoading(getString(R.string.loading_tip));
             mIsFirst = false;
         }
         new Thread(new Runnable() {
@@ -630,9 +623,10 @@ public class WatchStreamingActivity extends BaseActivity{
 
     private void stop_play()
     {
-        if (!mIsPlayStart)
+        if (!mIsPlayStart || mIsPlayEnd)
             return;
         mIsPlayStart = false;
+        mIsAlreadyPlay = false;
         Log.d(ConstInfo.TAG, "stop_play");
         mVideoView.stop(false);
     }

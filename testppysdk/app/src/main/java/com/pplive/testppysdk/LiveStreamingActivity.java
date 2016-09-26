@@ -47,7 +47,7 @@ import com.pplive.ppysdk.VIDEO_RESOLUTION_TYPE;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class LiveStreamingActivity extends Activity {
+public class LiveStreamingActivity extends BaseActivity {
 
 
     /**
@@ -171,13 +171,13 @@ public class LiveStreamingActivity extends Activity {
         AppSettingMode.setSetting(this, "last_liveurl", mRtmpUrl);
         AppSettingMode.setIntSetting(this, "last_type", mType);
 
-
         TextView textView = (TextView)findViewById(R.id.liveid);
         textView.setText(getString(R.string.liveid_tip, mLiveId));
 
         mDataTipTextview = (TextView)findViewById(R.id.msg_tip);
         registerBaseBoradcastReceiver(true);
         InitStream();
+        showLoading(getString(R.string.loading_tip));
     }
 
     boolean mIsStartCheckStatus = false;
@@ -194,16 +194,19 @@ public class LiveStreamingActivity extends Activity {
             PPYRestApi.stream_status(mLiveId, new PPYRestApi.StringResultStatusCallack() {
                 @Override
                 public void result(int errcode, String livestatus, String streamstatus) {
+
                     mIsStartCheckStatus = false;
                     Log.d(ConstInfo.TAG, "connect change network avilable GET stream_status errcode="+errcode+" livestatus="+livestatus);
                     if (errcode == 0 && livestatus != null)
                     {
                         if (livestatus.equals("stopped"))
                         {
+                            hideLoading();
                             show_play_end_popup();
                         }
                         else
                         {
+                            hideLoading();
                             if (NetworkUtils.isMobileNetwork(getApplicationContext()))
                             {
                                 if (mIsStartTipNetwork)
@@ -236,12 +239,16 @@ public class LiveStreamingActivity extends Activity {
                         }
                     }
                     else
+                    {
+                        hideLoading();
                         show_play_end_popup();
+                    }
                 }
             });
         }
         else
         {
+            hideLoading();
             Log.d(ConstInfo.TAG, "connect change network unavilable");
             StopStream();
             mMsgTextview.setText(getString(R.string.no_network));
@@ -334,6 +341,8 @@ public class LiveStreamingActivity extends Activity {
                     }
                     else if (i == PPY_STREAM_CONNECTED)
                     {
+                        hideLoading();
+
                         mIsReconnectTime = false;
                         mMsgTextview.setText(getString(R.string.push_stream_ok));
                         mMsgTextview.setVisibility(View.VISIBLE);

@@ -31,12 +31,12 @@ PPY Streamer Android SDK是pp云推出的 Android 平台上使用的软件开发
   
 ## 三. 快速集成
 
-本章节提供一个快速集成金山云推流SDK基础功能的示例。
-具体可以参考demo工程中的相应文件。
+本章节提供一个快速集成PP云推流SDK基础功能的示例。
+具体可以参考testppysdk工程中的相应文件。
 
 ### 配置项目
 
-引入目标库, 将libs目录下的库文件引入到目标工程中并添加依赖。
+引入目标库, 将推流SDK中libs目录下的库文件引入到目标工程中并添加依赖。
 
 可参考下述配置方式（以Android Studio为例）：
 - 将ppy-rtmp-sdk.aar拷贝到app的libs目录下；
@@ -76,19 +76,19 @@ public class TestApplication extends Application {
 }
 ````
 
-具体可参考demo工程中的`com.pplive.rtmpdemo.CameraActivity`类
+具体可参考demo工程中的`LiveStreamingActivity`类
 
 - 在布局文件中加入预览View
 ````xml
 <com.pplive.ppysdk.PPYSurfaceView
-        android:id="@+id/camera_preview"
+        android:id="@+id/lsq_cameraView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center" />
+        android:layout_height="match_parent" >
+    </com.pplive.ppysdk.PPYSurfaceView>
 ````
 - PPYSurfaceView
 ````java
-PPYSurfaceView mCameraView = (PPYSurfaceView)findViewById(R.id.camera_preview);
+PPYSurfaceView mCameraView = (PPYSurfaceView)findViewById(R.id.lsq_cameraView);
 ````
 
 - 创建并配置PPYStreamerConfig。
@@ -180,7 +180,7 @@ PPYStream.getInstance().StopStream();
 - Activity的生命周期回调处理  
 **采集的状态依赖于Activity的生命周期，所以必须在Activity的生命周期中也调用SDK相应的接口。**
 ```java
-public class CameraActivity extends Activity {
+public class LiveStreamingActivity extends Activity {
 
     // ...
 
@@ -204,3 +204,4 @@ public class CameraActivity extends Activity {
 }
 ```
 如需测试用的推流地址，请联系我们。
+
