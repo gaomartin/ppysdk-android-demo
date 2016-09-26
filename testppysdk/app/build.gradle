@@ -43,7 +43,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile(name: 'sdk-debug', ext: 'aar')
+    compile(name: 'ppy-rtmp-sdk', ext: 'aar')
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.alibaba:fastjson:1.2.15'
     compile 'com.android.support:appcompat-v7:24.1.1'

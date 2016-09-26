@@ -87,16 +87,6 @@ public class LiveStreamingActivity extends Activity {
 
     TextView mDataTipTextview;
 
-//    /**
-//     * 参数调节视图
-//     */
-//    private FilterConfigView mConfigView;
-
-//    /**
-//     * 页面状态
-//     */
-//    private boolean mActived = false;
-
     //-----------------------------------------------------
 
     // 美颜状态
@@ -222,13 +212,9 @@ public class LiveStreamingActivity extends Activity {
                                 }
                                 mIsStartTipNetwork = true;
                                 Log.d(ConstInfo.TAG, "connect change mobile network avilable, show tip alert");
-                                ConstInfo.showDialog(LiveStreamingActivity.this, "您当前使用的是移动数据，确定开播吗？", "", "取消", "确定", new AlertDialogResultCallack() {
+                                ConstInfo.showDialog(LiveStreamingActivity.this, getString(R.string.mobile_network_tip), "", getString(R.string.cannel), getString(R.string.ok), new AlertDialogResultCallack() {
                                     @Override
                                     public void cannel() {
-//                                        PPYStream.getInstance().OnPause();
-//
-//                                        PPYRestApi.stream_stop(mLiveId, null);
-
                                         finish();
                                     }
 
@@ -338,7 +324,6 @@ public class LiveStreamingActivity extends Activity {
                     }
                     else if (i == PPY_STREAM_STOP_EXPECTION)
                     {
-                        //Toast.makeText(getApplication(), "网络异常，正在尝试重新连接", Toast.LENGTH_SHORT).show();
                         if (!mIsReconnectTime)
                         {
                             mMsgTextview.setText(getString(R.string.network_reconnect));
@@ -349,7 +334,6 @@ public class LiveStreamingActivity extends Activity {
                     else if (i == PPY_STREAM_CONNECTED)
                     {
                         mIsReconnectTime = false;
-                        //Toast.makeText(getApplication(), "网络恢复，推流成功", Toast.LENGTH_SHORT).show();
                         mMsgTextview.setText(getString(R.string.push_stream_ok));
                         mMsgTextview.setVisibility(View.VISIBLE);
                         mHandle.postDelayed(mHideMsgRunable, 3000);
@@ -357,16 +341,14 @@ public class LiveStreamingActivity extends Activity {
                     else if (i == PPY_STREAM_DOWN_BITRATE)
                     {
                         mIsReconnectTime = false;
-                        //Toast.makeText(getApplication(), "网络恢复，推流成功", Toast.LENGTH_SHORT).show();
-                        mMsgTextview.setText("当前网络较差，已为你降低码率直播");
+                        mMsgTextview.setText(getString(R.string.stream_bitrate_down));
                         mMsgTextview.setVisibility(View.VISIBLE);
                         mHandle.postDelayed(mHideMsgRunable, 3000);
                     }
                     else if (i == PPY_STREAM_UP_BITRATE)
                     {
                         mIsReconnectTime = false;
-                        //Toast.makeText(getApplication(), "网络恢复，推流成功", Toast.LENGTH_SHORT).show();
-                        mMsgTextview.setText("当前网络较好，已为你提升码率直播");
+                        mMsgTextview.setText(getString(R.string.stream_bitrate_up));
                         mMsgTextview.setVisibility(View.VISIBLE);
                         mHandle.postDelayed(mHideMsgRunable, 3000);
                     }
@@ -451,7 +433,7 @@ public class LiveStreamingActivity extends Activity {
             } else
             {
                 // Permission Denied
-                mMsgTextview.setText("相机权限不够");
+                mMsgTextview.setText(getString(R.string.camera_premission_fail));
                 mMsgTextview.setVisibility(View.VISIBLE);
                 mHandle.removeCallbacks(mHideMsgRunable);
                 //Toast.makeText(LiveStreamingActivity.this, "相机权限不够", Toast.LENGTH_SHORT).show();
@@ -572,28 +554,12 @@ public class LiveStreamingActivity extends Activity {
             }
         });
 
-//        // 参数调节视图
-//        getFilterConfigView();
-
         updateMuteButtonStatus();
 
         updateBeautyButtonStatus();
 
         updateFlashButtonStatus();
     }
-//
-//    private FilterConfigView getFilterConfigView()
-//    {
-//        if (mConfigView == null)
-//        {
-//            mConfigView = (FilterConfigView) findViewById(R.id.lsq_filter_config_view);
-//            mConfigView.loadView();
-//            // 默认隐藏
-//            mConfigView.hiddenDefault();
-//        }
-//
-//        return mConfigView;
-//    }
 
     /** 按钮点击事件处理 */
     private View.OnClickListener mButtonClickListener = new View.OnClickListener()
@@ -602,18 +568,13 @@ public class LiveStreamingActivity extends Activity {
         {
             if (v == mCloseButton)
             {
-                ConstInfo.showDialog(LiveStreamingActivity.this, "确定要关闭直播吗？", "", "取消", "确定", new AlertDialogResultCallack() {
+                ConstInfo.showDialog(LiveStreamingActivity.this, getString(R.string.close_tip), "", getString(R.string.cannel), getString(R.string.ok), new AlertDialogResultCallack() {
                     @Override
                     public void cannel() {
-
                     }
 
                     @Override
                     public void ok() {
-                        //PPYStream.getInstance().OnPause();
-                        //StopStream();
-
-//                        PPYRestApi.stream_stop(mLiveId, null);
                         finish();
                     }
                 });
@@ -660,22 +621,16 @@ public class LiveStreamingActivity extends Activity {
     @Override
     public void onBackPressed()
     {
-        ConstInfo.showDialog(LiveStreamingActivity.this, "确定要关闭直播吗？", "", "取消", "确定", new AlertDialogResultCallack() {
+        ConstInfo.showDialog(LiveStreamingActivity.this, getString(R.string.close_tip), "", getString(R.string.cannel), getString(R.string.ok), new AlertDialogResultCallack() {
             @Override
             public void cannel() {
-
             }
 
             @Override
             public void ok() {
-//                PPYStream.getInstance().OnPause();
-//                StopStream();
-//
-//                PPYRestApi.stream_stop(mLiveId, null);
                 finish();
             }
         });
-
     }
 
     private void updateMuteButtonStatus()
@@ -698,17 +653,6 @@ public class LiveStreamingActivity extends Activity {
         }
     }
 
-//    private void updateBeautyCode(String code)
-//    {
-//        changeVideoFilterCode(code);
-//
-////        int stringID = this.getResources().getIdentifier("lsq_filter_" + code, "string", this.getApplicationContext().getPackageName());
-////
-////        String msg = getResources().getString(stringID);
-////        if (mActived)
-////            TuSdk.messageHub().showToast(this, msg);
-//    }
-//
 //    private void changeVideoFilterCode(String code)
 //    {
 //        PPYStream.getInstance().EnableBeauty(mBeautyEnabled);
@@ -720,10 +664,6 @@ public class LiveStreamingActivity extends Activity {
 
         if (mBeautyButton != null)
             mBeautyButton.setBackgroundResource(imgID);
-//
-//        int  msgID = mBeautyEnabled ? R.string.beauty_on: R.string.beauty_off;
-//
-//        if (mActived) TuSdk.messageHub().showToast(this, msgID);
     }
 
     /**
@@ -741,7 +681,6 @@ public class LiveStreamingActivity extends Activity {
             mDataTipButton.setBackgroundResource(imgID);
     }
 
-
     PopupWindow mPlayEndPopupWindow;
     public void show_play_end_popup()
     {
@@ -749,6 +688,7 @@ public class LiveStreamingActivity extends Activity {
             create_play_end_popup(null);
         if (mPlayEndPopupWindow != null && !mPlayEndPopupWindow.isShowing())
             mPlayEndPopupWindow.showAtLocation(mCloseButton, Gravity.CENTER, 0, 0);
+        StopStream();
     }
     public void hide_play_end_popup()
     {

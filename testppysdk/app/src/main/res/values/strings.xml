@@ -16,4 +16,9 @@
     <string name="mobile_network_play_tip">您当前使用的是移动数据，确定继续播放吗？</string>
     <string name="buffer_start">网络有些卡顿，正在拼命缓冲中...</string>
     <string name="stream_error">主播离开一会，请不要走开</string>
+    <string name="stream_bitrate_down">当前网络较差，已为你降低码率直播</string>
+    <string name="stream_bitrate_up">当前网络较好，已为你提升码率直播</string>
+    <string name="close_tip">确定要关闭直播吗？</string>
+    <string name="camera_premission_fail">相机权限不够</string>
+
 </resources>
