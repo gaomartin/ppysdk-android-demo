@@ -55,6 +55,7 @@ public class WatchStreamingActivity extends BaseActivity{
     TextView liveid_tip;
     TextView msg_data_tip;
     private TextView mMsgTextview;
+    private boolean mIsPlayEnd;
     Handler mHandle = new Handler();
     Runnable mHideMsgRunable = new Runnable() {
         @Override
@@ -356,7 +357,7 @@ public class WatchStreamingActivity extends BaseActivity{
     {
         if (NetworkUtils.isNetworkAvailable(getApplicationContext()))
         {
-            if (mIsStartCheckStatus)
+            if (mIsStartCheckStatus || mIsPlayEnd)
             {
                 Log.d(ConstInfo.TAG, "connect change network avilable and check status is already start, so exit this time");
                 return;
@@ -433,7 +434,7 @@ public class WatchStreamingActivity extends BaseActivity{
         @Override
         public void onReceive(final Context context, final Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-                if (mIsInBackground)
+                if (mIsInBackground || mIsPlayEnd)
                     return;
                 Log.d(ConstInfo.TAG, "connect change");
                 checkNetwork();
@@ -533,6 +534,7 @@ public class WatchStreamingActivity extends BaseActivity{
         if (mPlayEndPopupWindow != null && !mPlayEndPopupWindow.isShowing())
             mPlayEndPopupWindow.showAtLocation(lsq_closeButton, Gravity.CENTER, 0, 0);
         stop_play();
+        mIsPlayEnd = true;
     }
     public void hide_play_end_popup()
     {

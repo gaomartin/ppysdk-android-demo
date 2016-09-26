@@ -103,6 +103,7 @@ public class LiveStreamingActivity extends Activity {
     private Boolean mFrontCameraMirror = false;
 
     private TextView mMsgTextview;
+    private boolean mIsPlayEnd = false;
     // 美颜处理
 
     //------------------------------------------------------
@@ -184,7 +185,7 @@ public class LiveStreamingActivity extends Activity {
     {
         if (NetworkUtils.isNetworkAvailable(getApplicationContext()))
         {
-            if (mIsStartCheckStatus)
+            if (mIsStartCheckStatus || mIsPlayEnd)
             {
                 Log.d(ConstInfo.TAG, "connect change network avilable and check status is already start, so exit this time");
                 return;
@@ -252,7 +253,7 @@ public class LiveStreamingActivity extends Activity {
 
     void StartStream()
     {
-        if (mIsStreamingStart)
+        if (mIsStreamingStart || mIsPlayEnd)
             return;
         mIsStreamingStart = true;
         Log.d(ConstInfo.TAG, "StartStream");
@@ -458,7 +459,7 @@ public class LiveStreamingActivity extends Activity {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-                if (mIsInBackground)
+                if (mIsInBackground || mIsPlayEnd)
                     return;
                 Log.d(ConstInfo.TAG, "connect change");
                 checkNetwork();
@@ -689,6 +690,7 @@ public class LiveStreamingActivity extends Activity {
         if (mPlayEndPopupWindow != null && !mPlayEndPopupWindow.isShowing())
             mPlayEndPopupWindow.showAtLocation(mCloseButton, Gravity.CENTER, 0, 0);
         StopStream();
+        mIsPlayEnd = true;
     }
     public void hide_play_end_popup()
     {
