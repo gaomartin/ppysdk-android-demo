@@ -157,7 +157,6 @@ public class WatchStreamingActivity extends BaseActivity{
                         mReconnectTimeout = 0;
                         mVideoView.start();
                         mIsAlreadyPlay = true;
-
                     }
                 });
             }
@@ -276,58 +275,37 @@ public class WatchStreamingActivity extends BaseActivity{
                 {
                     if (livestatus.equals("stopped"))
                     {
+                        hide_play_error_popup();
                         show_play_end_popup();
                     }
                     else if ((livestatus.equals("living") || livestatus.equals("broken"))&& streamstatus.equals("error"))
                     {
                         show_play_error_popup();
 
-                        if (need_reconnect)
-                        {
-                            if (mReconnectTimeout == 0)
-                                mReconnectTimeout = System.currentTimeMillis();
-
-                            if (System.currentTimeMillis() - mReconnectTimeout > RECONNECT_TIMEOUT)
-                            {
-                                show_toast(getString(R.string.no_network), false);
-                                mIsShowReconnect = false;
-                                reconnect();
-                            }
-                            else
-                            {
-                                if (mIsShowReconnect)
-                                    show_toast(getString(R.string.network_reconnect), true);
-                                reconnect();
-                            }
-                        }
-
+                        reconnect();
                     }
                     else
                     {
-                        if (need_reconnect)
+                        if (mReconnectTimeout == 0)
+                            mReconnectTimeout = System.currentTimeMillis();
+
+                        if (System.currentTimeMillis() - mReconnectTimeout > RECONNECT_TIMEOUT)
                         {
-                            if (mReconnectTimeout == 0)
-                                mReconnectTimeout = System.currentTimeMillis();
-
-                            if (System.currentTimeMillis() - mReconnectTimeout > RECONNECT_TIMEOUT)
-                            {
-                                show_toast(getString(R.string.no_network), false);
-                                mIsShowReconnect = false;
-                                reconnect();
-                            }
-                            else
-                            {
-                                if (mIsShowReconnect)
-                                    show_toast(getString(R.string.network_reconnect), true);
-                                reconnect();
-                            }
+                            show_toast(getString(R.string.no_network), false);
+                            mIsShowReconnect = false;
+                            reconnect();
                         }
-
-
+                        else
+                        {
+                            if (mIsShowReconnect)
+                                show_toast(getString(R.string.network_reconnect), true);
+                            reconnect();
+                        }
                     }
                 }
                 else
                 {
+                    hide_play_error_popup();
                     show_play_end_popup();
                 }
             }
@@ -348,7 +326,7 @@ public class WatchStreamingActivity extends BaseActivity{
     {
         if (NetworkUtils.isNetworkAvailable(getApplicationContext()))
         {
-            if (mIsStartCheckStatus || mIsPlayEnd)
+            if (mIsStartCheckStatus)
             {
                 Log.d(ConstInfo.TAG, "connect change network avilable and check status is already start, so exit this time");
                 return;
@@ -357,12 +335,14 @@ public class WatchStreamingActivity extends BaseActivity{
             PPYRestApi.stream_status(mLiveId, new PPYRestApi.StringResultStatusCallack() {
                 @Override
                 public void result(int errcode, String livestatus, String streamstatus) {
+
                     mIsStartCheckStatus = false;
                     Log.d(ConstInfo.TAG, "connect change network avilable GET stream_status errcode="+errcode+" livestatus="+livestatus+" streamstatus="+streamstatus);
                     if (errcode == 0 && livestatus != null)
                     {
                         if (livestatus.equals("stopped"))
                         {
+                            hide_play_error_popup();
                             show_play_end_popup();
                         }
                         else
@@ -395,11 +375,13 @@ public class WatchStreamingActivity extends BaseActivity{
                                 Log.d(ConstInfo.TAG, "connect change wiff network avilable");
                                 start_play();
                             }
-
                         }
                     }
                     else
+                    {
+                        hide_play_error_popup();
                         show_play_end_popup();
+                    }
                 }
             });
         }
@@ -425,7 +407,7 @@ public class WatchStreamingActivity extends BaseActivity{
         @Override
         public void onReceive(final Context context, final Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-                if (mIsInBackground || mIsPlayEnd)
+                if (mIsInBackground)
                     return;
                 Log.d(ConstInfo.TAG, "connect change");
                 checkNetwork();
@@ -461,9 +443,11 @@ public class WatchStreamingActivity extends BaseActivity{
             create_play_error_popup(null);
         if (mPlayErrorPopupWindow != null && !mPlayErrorPopupWindow.isShowing())
             mPlayErrorPopupWindow.showAtLocation(lsq_closeButton, Gravity.CENTER, 0, 0);
+        mIsShowLoading = false;
     }
     public void hide_play_error_popup()
     {
+        mIsShowLoading = true;
         if (mPlayErrorPopupWindow != null)
             mPlayErrorPopupWindow.dismiss();
     }
@@ -600,18 +584,17 @@ public class WatchStreamingActivity extends BaseActivity{
         return mCurrentUrl;
     }
 
-    boolean mIsFirst = true;
+    boolean mIsShowLoading = true;
     private void start_play()
     {
         if (mIsPlayStart || mIsPlayEnd)
             return;
         mIsPlayStart = true;
         Log.d(ConstInfo.TAG, "start_play");
-        if (mIsFirst)
-        {
+
+        if (mIsShowLoading)
             showLoading(getString(R.string.loading_tip));
-            mIsFirst = false;
-        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {

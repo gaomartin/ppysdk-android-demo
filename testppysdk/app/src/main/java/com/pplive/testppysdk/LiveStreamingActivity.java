@@ -177,7 +177,7 @@ public class LiveStreamingActivity extends BaseActivity {
         mDataTipTextview = (TextView)findViewById(R.id.msg_tip);
         registerBaseBoradcastReceiver(true);
         InitStream();
-        showLoading(getString(R.string.loading_tip));
+
     }
 
     boolean mIsStartCheckStatus = false;
@@ -264,6 +264,7 @@ public class LiveStreamingActivity extends BaseActivity {
             return;
         mIsStreamingStart = true;
         Log.d(ConstInfo.TAG, "StartStream");
+        showLoading(getString(R.string.loading_tip));
         PPYStream.getInstance().StartStream();
         mStartRunableTimer = new Timer();
         mStartRunableTimer.schedule(new TimerTask() {
