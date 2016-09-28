@@ -135,8 +135,12 @@ public class LiveStreamingActivity extends BaseActivity {
         }
     };
 
+    Timer mStatusRunableTimer;
     Timer mStartRunableTimer;
     Timer mUpdateDataTipTimer;
+
+    private final long MAX_CONNECT_TIMEOUT = 10*1000;
+    private long mLastConnectTime = 0;
     void updateTip()
     {
         if (PPYStream.getInstance().IsStreaming())
@@ -309,6 +313,8 @@ public class LiveStreamingActivity extends BaseActivity {
     }
 
     boolean mIsReconnectTime = false;
+    long mReconnectLastTime = 0;
+    final long MAX_RECONNECT_TIMEOUT = 30*1000;
     PPYStatusListener mPPStatusListener = new PPYStatusListener() {
         @Override
         public void onStateChanged(final int i, Object o) {
@@ -333,7 +339,17 @@ public class LiveStreamingActivity extends BaseActivity {
                     }
                     else if (i == PPY_STREAM_STOP_EXPECTION)
                     {
-                        if (!mIsReconnectTime)
+                        Log.d(ConstInfo.TAG, "onStateChanged PPY_STREAM_STOP_EXPECTION");
+                        if (mReconnectLastTime == 0)
+                            mReconnectLastTime = System.currentTimeMillis();
+                        if (System.currentTimeMillis() - mReconnectLastTime > MAX_RECONNECT_TIMEOUT)
+                        {
+                            mIsReconnectTime = true;
+                            mMsgTextview.setText(getString(R.string.no_network));
+                            mMsgTextview.setVisibility(View.VISIBLE);
+                            mHandle.removeCallbacks(mHideMsgRunable);
+                        }
+                        else
                         {
                             mMsgTextview.setText(getString(R.string.network_reconnect));
                             mMsgTextview.setVisibility(View.VISIBLE);
@@ -343,28 +359,90 @@ public class LiveStreamingActivity extends BaseActivity {
                     else if (i == PPY_STREAM_CONNECTED)
                     {
                         hideLoading();
+                        Log.d(ConstInfo.TAG, "onStateChanged PPY_STREAM_CONNECTED");
 
-                        mIsReconnectTime = false;
-                        mMsgTextview.setText(getString(R.string.push_stream_ok));
-                        mMsgTextview.setVisibility(View.VISIBLE);
-                        mHandle.postDelayed(mHideMsgRunable, 3000);
+                        if (!mIsReconnectTime)
+                        {
+                            mMsgTextview.setText(getString(R.string.push_stream_running));
+                            mMsgTextview.setVisibility(View.VISIBLE);
+                            mHandle.removeCallbacks(mHideMsgRunable);
+                        }
+
+                        //mLastConnectTime = System.currentTimeMillis();
+
+                        if (mStatusRunableTimer != null) {
+                            mStatusRunableTimer.cancel();
+                            mStatusRunableTimer.purge();
+                            mStatusRunableTimer = null;
+                        }
+                        mStatusRunableTimer = new Timer();
+                        mStatusRunableTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.d(ConstInfo.TAG, "excute mStatusRunableTimer");
+                                PPYRestApi.stream_status(mLiveId, new PPYRestApi.StringResultStatusCallack() {
+                                    @Override
+                                    public void result(int errcode, String livestatus, String streamstatus) {
+//                                        boolean isTimeout = false;
+//                                        if (System.currentTimeMillis() - mLastConnectTime > MAX_CONNECT_TIMEOUT)
+//                                            isTimeout = true;
+
+                                        Log.d(ConstInfo.TAG, "mStatusRunableTimer GET stream_status errcode="+errcode+" livestatus="+livestatus+" streamstatus="+streamstatus);
+                                        if (errcode == 0 && (livestatus != null && livestatus.equals("living")) && (streamstatus != null && streamstatus.equals("ok"))) {
+                                            mIsReconnectTime = false;
+                                            mReconnectLastTime = 0;
+                                            mMsgTextview.setText(getString(R.string.push_stream_ok));
+                                            mMsgTextview.setVisibility(View.VISIBLE);
+                                            mHandle.postDelayed(mHideMsgRunable, 3000);
+                                            if (mStatusRunableTimer != null) {
+                                                mStatusRunableTimer.cancel();
+                                                mStatusRunableTimer.purge();
+                                                mStatusRunableTimer = null;
+                                            }
+                                        }
+//                                        else
+//                                        {
+//                                            if (isTimeout)
+//                                            {
+//                                                Log.d(ConstInfo.TAG, "mStatusRunableTimer connect stream  isTimeout="+isTimeout);
+//                                                mMsgTextview.setText(getString(R.string.network_reconnect));
+//                                                mMsgTextview.setVisibility(View.VISIBLE);
+//                                                mHandle.postDelayed(mHideMsgRunable, 3000);
+//                                                if (mStatusRunableTimer != null) {
+//                                                    mStatusRunableTimer.cancel();
+//                                                    mStatusRunableTimer.purge();
+//                                                    mStatusRunableTimer = null;
+//                                                }
+//                                            }
+//
+//                                        }
+                                    }
+                                });
+                            }
+                        }, 1000, 1000);
                     }
                     else if (i == PPY_STREAM_DOWN_BITRATE)
                     {
-                        mIsReconnectTime = false;
-                        mMsgTextview.setText(getString(R.string.stream_bitrate_down));
-                        mMsgTextview.setVisibility(View.VISIBLE);
-                        mHandle.postDelayed(mHideMsgRunable, 3000);
+                        if (!mIsReconnectTime)
+                        {
+                            mMsgTextview.setText(getString(R.string.stream_bitrate_down));
+                            mMsgTextview.setVisibility(View.VISIBLE);
+                            mHandle.postDelayed(mHideMsgRunable, 3000);
+                        }
+
                     }
                     else if (i == PPY_STREAM_UP_BITRATE)
                     {
-                        mIsReconnectTime = false;
-                        mMsgTextview.setText(getString(R.string.stream_bitrate_up));
-                        mMsgTextview.setVisibility(View.VISIBLE);
-                        mHandle.postDelayed(mHideMsgRunable, 3000);
+                        if (!mIsReconnectTime)
+                        {
+                            mMsgTextview.setText(getString(R.string.stream_bitrate_up));
+                            mMsgTextview.setVisibility(View.VISIBLE);
+                            mHandle.postDelayed(mHideMsgRunable, 3000);
+                        }
                     }
                     else if (i == PPY_STREAM_RECONNECT_TIME)
                     {
+                        Log.d(ConstInfo.TAG, "onStateChanged PPY_STREAM_RECONNECT_TIME");
                         mIsReconnectTime = true;
                         mMsgTextview.setText(getString(R.string.no_network));
                         mMsgTextview.setVisibility(View.VISIBLE);
@@ -383,6 +461,12 @@ public class LiveStreamingActivity extends BaseActivity {
         mIsStreamingStart = false;
         Log.d(ConstInfo.TAG, "StopStream");
         PPYStream.getInstance().StopStream();
+
+        if (mStatusRunableTimer != null) {
+            mStatusRunableTimer.cancel();
+            mStatusRunableTimer.purge();
+            mStatusRunableTimer = null;
+        }
 
         if (mStartRunableTimer != null)
         {

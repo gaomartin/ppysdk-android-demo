@@ -392,4 +392,12 @@ public class MainActivity extends BaseActivity{
             break;
         }
     }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        Log.d(ConstInfo.TAG, "MainActivity onDestroy");
+    }
 }

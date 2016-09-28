@@ -288,7 +288,6 @@ public class PPYRestApi {
                             String streamStatus = data.getString("streamStatus");
                             if (resultCallack != null)
                             {
-
                                 resultCallack.result(0, liveStatus, streamStatus);
                             }
                             return;

@@ -12,6 +12,7 @@
     <string name="network_try_reconnect">网络异常，正在尝试重新连接</string>
     <string name="get_stream_ok">拉流成功</string>
     <string name="push_stream_ok">推流成功</string>
+    <string name="push_stream_running">正在推流</string>
     <string name="mobile_network_tip">您当前使用的是移动数据，确定开播吗？</string>
     <string name="mobile_network_play_tip">您当前使用的是移动数据，确定继续播放吗？</string>
     <string name="buffer_start">网络有些卡顿，正在拼命缓冲中...</string>
