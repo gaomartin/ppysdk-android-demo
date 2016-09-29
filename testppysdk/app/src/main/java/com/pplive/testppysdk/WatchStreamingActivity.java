@@ -160,6 +160,7 @@ public class WatchStreamingActivity extends BaseActivity{
                         mReconnectTimeout = 0;
                         mVideoView.start();
                         mIsAlreadyPlay = true;
+                        mIsShowLoading = true;
                     }
                 });
             }
@@ -298,6 +299,7 @@ public class WatchStreamingActivity extends BaseActivity{
 
                         if (System.currentTimeMillis() - mReconnectTimeout > RECONNECT_TIMEOUT)
                         {
+                            mIsShowLoading = false;
                             show_toast(getString(R.string.no_network), false);
                             mIsShowReconnect = false;
                             reconnect();
@@ -310,7 +312,7 @@ public class WatchStreamingActivity extends BaseActivity{
                         }
                     }
                 }
-                else
+                else if (errcode == 98 || errcode == 97)
                 {
                     hide_play_error_popup();
                     show_play_end_popup();
@@ -385,7 +387,7 @@ public class WatchStreamingActivity extends BaseActivity{
                             }
                         }
                     }
-                    else
+                    else if (errcode == 98 || errcode == 97)
                     {
                         hide_play_error_popup();
                         show_play_end_popup();
@@ -473,17 +475,18 @@ public class WatchStreamingActivity extends BaseActivity{
         Bitmap fastblurBitmap = ConstInfo.fastblur(bitmap, 20);
         bg.setImageBitmap(fastblurBitmap);
 
-        dialogView.setFocusable(true);
-        dialogView.setFocusableInTouchMode(true);
+//        dialogView.setFocusable(true);
+//        dialogView.setFocusableInTouchMode(true);
+//        dialogView.requestFocus();
 
         mPlayErrorPopupWindow = new PopupWindow(dialogView, RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
         //在PopupWindow里面就加上下面代码，让键盘弹出时，不会挡住pop窗口。
         mPlayErrorPopupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
         mPlayErrorPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         //点击空白处时，隐藏掉pop窗口
-        mPlayErrorPopupWindow.setFocusable(true);
+//        mPlayErrorPopupWindow.setFocusable(true);
 
-       // mPlayErrorPopupWindow.setBackgroundDrawable(new BitmapDrawable());
+//        mPlayErrorPopupWindow.setBackgroundDrawable(new BitmapDrawable());
 //
 //        mPlayErrorPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
 //            @Override
@@ -499,21 +502,22 @@ public class WatchStreamingActivity extends BaseActivity{
                 finish();
             }
         });
-        dialogView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch(keyCode) {
-                        case KeyEvent.KEYCODE_BACK:
-                            mPlayErrorPopupWindow.dismiss();
-                            mIsExiting = true;
-                            finish();
-                            return false;
-                    }
-                }
-                return true;
-            }
-        });
+//        dialogView.setOnKeyListener(new View.OnKeyListener() {
+//            @Override
+//            public boolean onKey(View v, int keyCode, KeyEvent event) {
+//                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+//                    switch(keyCode) {
+//                        case KeyEvent.KEYCODE_BACK:
+//                            Log.d(ConstInfo.TAG, "mPlayErrorPopupWindow KEYCODE_BACK");
+//                            mPlayErrorPopupWindow.dismiss();
+//                            mIsExiting = true;
+//                            finish();
+//                            return false;
+//                    }
+//                }
+//                return true;
+//            }
+//        });
 
     }
 
@@ -541,46 +545,49 @@ public class WatchStreamingActivity extends BaseActivity{
         ImageView bg = (ImageView)dialogView.findViewById(R.id.bg);
         Bitmap fastblurBitmap = ConstInfo.fastblur(bitmap, 18);
         bg.setImageBitmap(fastblurBitmap);
-        dialogView.setFocusable(true);
-        dialogView.setFocusableInTouchMode(true);
+//        dialogView.setFocusable(true);
+//        dialogView.setFocusableInTouchMode(true);
 
         mPlayEndPopupWindow = new PopupWindow(dialogView, RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
         //在PopupWindow里面就加上下面代码，让键盘弹出时，不会挡住pop窗口。
         mPlayEndPopupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
         mPlayEndPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         //点击空白处时，隐藏掉pop窗口
-        mPlayEndPopupWindow.setFocusable(true);
+//        mPlayEndPopupWindow.setFocusable(true);
 //        mPlayEndPopupWindow.setBackgroundDrawable(new BitmapDrawable());
 
-        mPlayEndPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                mIsExiting = true;
-                finish();
-            }
-        });
+//        mPlayEndPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+//            @Override
+//            public void onDismiss() {
+//                mIsExiting = true;
+//                finish();
+//            }
+//        });
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mPlayEndPopupWindow.dismiss();
+                mIsExiting = true;
+                finish();
             }
         });
-        dialogView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch(keyCode) {
-                        case KeyEvent.KEYCODE_BACK:
-                        {
-                            mPlayEndPopupWindow.dismiss();
-
-                        }
-                        return false;
-                    }
-                }
-                return true;
-            }
-        });
+//        dialogView.setOnKeyListener(new View.OnKeyListener() {
+//            @Override
+//            public boolean onKey(View v, int keyCode, KeyEvent event) {
+//                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+//                    switch(keyCode) {
+//                        case KeyEvent.KEYCODE_BACK:
+//                        {
+//                            Log.d(ConstInfo.TAG, "mPlayEndPopupWindow KEYCODE_BACK");
+//                            mPlayEndPopupWindow.dismiss();
+//
+//                        }
+//                        return false;
+//                    }
+//                }
+//                return true;
+//            }
+//        });
 
     }
 
@@ -646,16 +653,20 @@ public class WatchStreamingActivity extends BaseActivity{
         registerBaseBoradcastReceiver(false);
     }
 //
-//    @Override
-//    public void onBackPressed()
-//    {
-//        Log.d(ConstInfo.TAG, "onBackPressed");
-//        if (mPlayErrorPopupWindow != null && mPlayErrorPopupWindow.isShowing())
-//        {
-//            mPlayErrorPopupWindow.dismiss();
-//        }
-//
-//        super.onBackPressed();
-//    }
+    @Override
+    public void onBackPressed()
+    {
+        Log.d(ConstInfo.TAG, "onBackPressed");
+        if (mPlayErrorPopupWindow != null && mPlayErrorPopupWindow.isShowing())
+        {
+            mPlayErrorPopupWindow.dismiss();
+        }
+        if (mPlayEndPopupWindow != null && mPlayEndPopupWindow.isShowing())
+        {
+            mPlayEndPopupWindow.dismiss();
+        }
+
+        super.onBackPressed();
+    }
 
 }

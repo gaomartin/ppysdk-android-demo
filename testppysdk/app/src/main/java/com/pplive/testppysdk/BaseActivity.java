@@ -59,7 +59,7 @@ public class BaseActivity extends Activity {
         mPopupWindow.getWindow().setAttributes(lp);
         mPopupWindow.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         mPopupWindow.setContentView(contentView);
-        mPopupWindow.setCanceledOnTouchOutside(false);
+//        mPopupWindow.setCanceledOnTouchOutside(false);
         return mPopupWindow;
     }
 

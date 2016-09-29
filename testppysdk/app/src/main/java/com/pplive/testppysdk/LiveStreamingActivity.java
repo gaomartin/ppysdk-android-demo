@@ -53,7 +53,7 @@ public class LiveStreamingActivity extends BaseActivity {
     /**
      * 关闭按钮
      */
-    private Button mCloseButton;
+    private ImageButton mCloseButton;
 
     /**
      * 美颜控制按钮
@@ -242,7 +242,7 @@ public class LiveStreamingActivity extends BaseActivity {
 
                         }
                     }
-                    else
+                    else if (errcode == 98 || errcode == 97)
                     {
                         hideLoading();
                         show_play_end_popup();
@@ -383,10 +383,6 @@ public class LiveStreamingActivity extends BaseActivity {
                                 PPYRestApi.stream_status(mLiveId, new PPYRestApi.StringResultStatusCallack() {
                                     @Override
                                     public void result(int errcode, String livestatus, String streamstatus) {
-//                                        boolean isTimeout = false;
-//                                        if (System.currentTimeMillis() - mLastConnectTime > MAX_CONNECT_TIMEOUT)
-//                                            isTimeout = true;
-
                                         Log.d(ConstInfo.TAG, "mStatusRunableTimer GET stream_status errcode="+errcode+" livestatus="+livestatus+" streamstatus="+streamstatus);
                                         if (errcode == 0 && (livestatus != null && livestatus.equals("living")) && (streamstatus != null && streamstatus.equals("ok"))) {
                                             mIsReconnectTime = false;
@@ -400,22 +396,6 @@ public class LiveStreamingActivity extends BaseActivity {
                                                 mStatusRunableTimer = null;
                                             }
                                         }
-//                                        else
-//                                        {
-//                                            if (isTimeout)
-//                                            {
-//                                                Log.d(ConstInfo.TAG, "mStatusRunableTimer connect stream  isTimeout="+isTimeout);
-//                                                mMsgTextview.setText(getString(R.string.network_reconnect));
-//                                                mMsgTextview.setVisibility(View.VISIBLE);
-//                                                mHandle.postDelayed(mHideMsgRunable, 3000);
-//                                                if (mStatusRunableTimer != null) {
-//                                                    mStatusRunableTimer.cancel();
-//                                                    mStatusRunableTimer.purge();
-//                                                    mStatusRunableTimer = null;
-//                                                }
-//                                            }
-//
-//                                        }
                                     }
                                 });
                             }
@@ -617,7 +597,7 @@ public class LiveStreamingActivity extends BaseActivity {
         mMsgTextview = (TextView)findViewById(R.id.msg_live);
         mMsgTextview.setVisibility(View.GONE);
 
-        mCloseButton = (Button)findViewById(R.id.lsq_closeButton);
+        mCloseButton = (ImageButton)findViewById(R.id.lsq_closeButton);
         mCloseButton.setOnClickListener(mButtonClickListener);
 
         mBeautyButton = (Button)findViewById(R.id.lsq_beautyButton);
@@ -800,6 +780,8 @@ public class LiveStreamingActivity extends BaseActivity {
         ImageView bg = (ImageView)dialogView.findViewById(R.id.bg);
         Bitmap fastblurBitmap = ConstInfo.fastblur(bitmap, 20);
         bg.setImageBitmap(fastblurBitmap);
+        dialogView.setFocusable(true);
+        dialogView.setFocusableInTouchMode(true);
 
         mPlayEndPopupWindow = new PopupWindow(dialogView, RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
         //在PopupWindow里面就加上下面代码，让键盘弹出时，不会挡住pop窗口。
@@ -807,7 +789,7 @@ public class LiveStreamingActivity extends BaseActivity {
         mPlayEndPopupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         //点击空白处时，隐藏掉pop窗口
         mPlayEndPopupWindow.setFocusable(true);
-        mPlayEndPopupWindow.setBackgroundDrawable(new BitmapDrawable());
+//        mPlayEndPopupWindow.setBackgroundDrawable(new BitmapDrawable());
 
         mPlayEndPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
@@ -827,6 +809,7 @@ public class LiveStreamingActivity extends BaseActivity {
                 if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     switch(keyCode) {
                         case KeyEvent.KEYCODE_BACK:
+                            Log.d(ConstInfo.TAG, "mPlayEndPopupWindow KEYCODE_BACK");
                             mPlayEndPopupWindow.dismiss();
                             return false;
                     }

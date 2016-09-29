@@ -34,11 +34,12 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:layout_weight="1"></LinearLayout>
-        <Button
+        <ImageButton
             android:layout_width="@dimen/button_small_icon_size"
             android:layout_height="@dimen/button_small_icon_size"
             android:id="@+id/lsq_closeButton"
             android:background="@drawable/close"
+            android:layout_marginRight="5dp"
             android:layout_gravity="center_vertical|right"/>
     </LinearLayout>
     <TextView
