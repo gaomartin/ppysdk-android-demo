@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.slkmedia.mediaplayer.VideoView;
 import android.slkmedia.mediaplayer.VideoViewListener;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -31,6 +32,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -39,15 +41,20 @@ import android.widget.Toast;
 
 import com.pplive.ppysdk.PPYStream;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WatchStreamingActivity extends BaseActivity{
     VideoView mVideoView;
+
     Handler mHandler = new Handler();
     String mRtmpUrl; // rtmp
     String mHdlUrl; // http-flv
+    String mM3u8Url; // m3u8
+    ArrayList<String> mRtmpUrlList = new ArrayList<>();
     String mCurrentUrl;
-    int mUrlType;
+    PlayType mUrlType;
+    PlayMode mRtmpPlayMode = PlayMode.GAOQING;
     String mLiveId;
     long mReconnectTimeout = 0;
     static final long RECONNECT_TIMEOUT = 30*1000;
@@ -75,7 +82,7 @@ public class WatchStreamingActivity extends BaseActivity{
         public void run() {
             if (mIsPlayStart)
             {
-                String str = String.format(getString(R.string.watch_data_tip), mVideoBitrate, mVideoFPS, mVideoWidth, mVideoHeight, mVideoDelay, (mUrlType==0)?"RTMP":"HTTP-FLV");
+                String str = String.format(getString(R.string.watch_data_tip), mVideoBitrate, mVideoFPS, mVideoWidth, mVideoHeight, mVideoDelay, mUrlType.toString());
                 msg_data_tip.setText(str);
             }
             mHandle.postDelayed(mUpdateDataTipRunable, 1000);
@@ -100,12 +107,20 @@ public class WatchStreamingActivity extends BaseActivity{
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         setContentView(R.layout.watch_streaming_activity);
-
-
-        mRtmpUrl = getIntent().getStringExtra("liveurl");
-        mHdlUrl = getIntent().getStringExtra("liveflvurl");
         mLiveId = getIntent().getStringExtra("liveid");
-        mUrlType = getIntent().getIntExtra("type", 0);
+        mUrlType = PlayType.get(getIntent().getIntExtra("type", 0));
+        Bundle data = getIntent().getBundleExtra("liveurl");
+        mRtmpUrlList = data.getStringArrayList("rtmpsUrl");
+        if (mRtmpUrlList != null && mRtmpUrlList.size() > 0)
+            mRtmpUrl = mRtmpUrlList.get(0);
+        else
+            mRtmpUrl = data.getString("rtmpUrl");
+        mHdlUrl = data.getString("hdlUrl");
+        mM3u8Url = data.getString("m3u8Url");
+        if (TextUtils.isEmpty(mRtmpUrl) || TextUtils.isEmpty(mHdlUrl))
+            mUrlType = PlayType.M3U8;
+
+        mRtmpPlayMode = PlayMode.GAOQING;
 
         liveid_tip = (TextView)findViewById(R.id.liveid);
         liveid_tip.setText(getString(R.string.liveid_tip, mLiveId));
@@ -122,18 +137,75 @@ public class WatchStreamingActivity extends BaseActivity{
                 msg_data_tip.setVisibility(mIsDataTipOpen?View.VISIBLE:View.GONE);
             }
         });
-        final Button button_url_type = (Button) findViewById(R.id.button_url_type);
-        button_url_type.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout rtmp_play_mode_control_container = (LinearLayout)findViewById(R.id.rtmp_play_mode_control_container);
+        final TextView textview_rtmp_play_mode = (TextView) findViewById(R.id.textview_rtmp_play_mode);
+        final TextView textview_play_type = (TextView) findViewById(R.id.textview_play_type);
+        if (TextUtils.isEmpty(mHdlUrl) || TextUtils.isEmpty(mRtmpUrl))
+            textview_play_type.setVisibility(View.GONE);
+        else
+            textview_play_type.setVisibility(View.VISIBLE);
+
+//        if (mUrlType == PlayType.RTMP && mRtmpUrlList != null && !mRtmpUrlList.isEmpty())
+//        {
+//            textview_rtmp_play_mode.setText("高清");
+//            textview_rtmp_play_mode.setVisibility(View.VISIBLE);
+//        }
+//        else
+//            textview_rtmp_play_mode.setVisibility(View.GONE);
+
+        textview_play_type.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mUrlType == 0)
-                    mUrlType = 1;
+                if (mUrlType == PlayType.RTMP)
+                    mUrlType = PlayType.FLV;
                 else
-                    mUrlType = 0;
-                button_url_type.setBackgroundResource((mUrlType == 0)?R.drawable.rtmp:R.drawable.flv);
+                    mUrlType = PlayType.RTMP;
+
+                textview_play_type.setText(mUrlType.toString());
+//                button_url_type.setBackgroundResource((mUrlType == PlayType.RTMP)?R.drawable.rtmp:R.drawable.flv);
+
+                if (mUrlType == PlayType.RTMP && mRtmpUrlList != null && !mRtmpUrlList.isEmpty())
+                {
+                    mRtmpPlayMode = PlayMode.GAOQING;
+                    //textview_rtmp_play_mode.setText(mRtmpPlayMode.toString());
+                    //textview_rtmp_play_mode.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    textview_rtmp_play_mode.setVisibility(View.GONE);
+                    //rtmp_play_mode_control_container.setVisibility(View.GONE);
+                }
+
+                if (mIsPlayEnd)
+                    return;
+                Log.d(ConstInfo.TAG, "reconnect play");
+                stop_play();
+                start_play();
             }
         });
-        Log.d(ConstInfo.TAG, "play url: "+ getCurrentUrl());
+
+        textview_rtmp_play_mode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rtmp_play_mode_control_container.setVisibility(rtmp_play_mode_control_container.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);
+            }
+        });
+
+        final RadioGroup radio_group_container = (RadioGroup)findViewById(R.id.radio_group_container);
+        radio_group_container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int id = radio_group_container.getCheckedRadioButtonId();
+                if (id == R.id.RADIO_BUTTON_480P)
+                {
+
+                }
+
+                rtmp_play_mode_control_container.setVisibility(rtmp_play_mode_control_container.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);
+            }
+        });
+
+
         lsq_closeButton = (ImageButton)findViewById(R.id.lsq_closeButton);
         lsq_closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -606,10 +678,12 @@ public class WatchStreamingActivity extends BaseActivity{
     }
     private String getCurrentUrl()
     {
-        if (mUrlType == 0)
+        if (mUrlType == PlayType.RTMP)
             mCurrentUrl = mRtmpUrl;
-        else
+        else if (mUrlType == PlayType.FLV)
             mCurrentUrl = mHdlUrl;
+        else if (mUrlType == PlayType.M3U8)
+            mCurrentUrl = mM3u8Url;
         return mCurrentUrl;
     }
 
@@ -627,6 +701,7 @@ public class WatchStreamingActivity extends BaseActivity{
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Log.d(ConstInfo.TAG, "play url: "+ getCurrentUrl());
                 mVideoView.setDataSource(getCurrentUrl(), VideoView.LIVE_LOW_DELAY);
                 mVideoView.prepareAsync();
             }

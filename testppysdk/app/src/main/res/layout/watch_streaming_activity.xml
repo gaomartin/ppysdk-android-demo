@@ -57,7 +57,9 @@
         android:textColor="@color/color_FFFEFEFE"/>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true">
         <LinearLayout
@@ -84,16 +86,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" android:orientation="horizontal"
             android:paddingBottom="10dp"
-            android:layout_marginBottom="10dp"
+
             android:paddingTop="10dp">
-            <Button
+            <TextView
+                android:background="@drawable/toast_bg"
                 android:layout_width="60dp"
-                android:layout_height="@dimen/button_small_icon_size"
-                android:id="@+id/button_url_type"
+                android:layout_height="40dp"
+                android:id="@+id/textview_rtmp_play_mode"
+                android:gravity="center_vertical"
                 android:layout_marginLeft="10dp"
+                android:textAlignment="center"
+                android:text="高清"
                 android:visibility="gone"
-                android:background="@drawable/rtmp"
-                />
+                android:textSize="16sp"
+                android:clickable="true"
+                android:textColor="@color/color_FFFEFEFE"/>
+            <TextView
+                android:background="@drawable/toast_bg"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:id="@+id/textview_play_type"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:textAlignment="center"
+                android:text="RTMP"
+                android:visibility="visible"
+                android:textSize="16sp"
+                android:clickable="true"
+                android:textColor="@color/color_FFFEFEFE"/>
             <Button
                 android:layout_width="@dimen/button_small_icon_size"
                 android:layout_height="@dimen/button_small_icon_size"
@@ -101,6 +121,72 @@
                 android:layout_marginLeft="10dp"
                 android:background="@drawable/data_tip_open"
                 />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rtmp_play_mode_control_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_CCF5F5F5"
+            android:visibility="gone"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:orientation="horizontal">
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+
+
+                android:id="@+id/radio_group_container"
+                >
+                <RadioButton
+                    android:layout_width="50dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:textAlignment="center"
+                    android:layout_weight="1"
+                    android:text="超清"
+                    android:textSize="@dimen/button_text_size"
+                    android:textColor="@color/rtmp_bg_text_color"
+                    android:button="@null"
+                    android:clickable="true"
+
+                    android:background="@drawable/button_rtmp_mode_bg"
+                    android:id="@+id/RADIO_BUTTON_480P"/>
+                <RadioButton
+                    android:layout_width="50dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:textAlignment="center"
+                    android:layout_weight="1"
+                    android:text="高清"
+                    android:textSize="@dimen/button_text_size"
+                    android:textColor="@color/rtmp_bg_text_color"
+                    android:button="@null"
+                    android:checked="true"
+                    android:clickable="true"
+                    android:background="@drawable/button_rtmp_mode_bg"
+                    android:id="@+id/RADIO_BUTTON_540P"/>
+                <RadioButton
+                    android:layout_width="50dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:textAlignment="center"
+                    android:layout_weight="1"
+                    android:text="标清"
+                    android:textSize="@dimen/button_text_size"
+                    android:textColor="@color/rtmp_bg_text_color"
+                    android:button="@null"
+                    android:clickable="true"
+                    android:background="@drawable/button_rtmp_mode_bg"
+                    android:id="@+id/RADIO_BUTTON_720P"/>
+            </RadioGroup>
+
         </LinearLayout>
     </LinearLayout>
 

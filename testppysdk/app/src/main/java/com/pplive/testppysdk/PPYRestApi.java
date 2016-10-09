@@ -2,12 +2,15 @@ package com.pplive.testppysdk;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -40,6 +43,10 @@ public class PPYRestApi {
     public interface StringResultWatchCallack
     {
         void result(int errcode, String rtmpurl, String live2url);
+    }
+    public interface StringResultMapCallack
+    {
+        void result(int errcode, Bundle result);
     }
     public interface StringResultStatusCallack
     {
@@ -240,7 +247,7 @@ public class PPYRestApi {
             }
         });
     }
-    public static void stream_watch(String liveid, final StringResultWatchCallack resultCallack)
+    public static void stream_watch(String liveid, final StringResultMapCallack resultCallack)
     {
         PPYRestApi.asyn_http_get(STREAM_WATCH, liveid, new StringResultCallack() {
             @Override
@@ -251,23 +258,38 @@ public class PPYRestApi {
                         int err = s.getIntValue("err");
                         if (err == 0) {
                             JSONObject data = s.getJSONObject("data");
-                            String rtmpUrl = data.getString("rtmpUrl");
-                            String m3u8Url = data.getString("m3u8Url");
+
+                            Bundle bundle = new Bundle();
+                            bundle.putString("rtmpUrl", data.getString("rtmpUrl"));
+                            bundle.putString("m3u8Url", data.getString("m3u8Url"));
+                            bundle.putString("hdlUrl", data.getString("hdlUrl"));
+
+                            JSONArray rtmpArray = data.getJSONArray("rtmpsUrl");
+                            if (rtmpArray != null)
+                            {
+                                ArrayList<String> rtmpsUrl = new ArrayList<String>();
+                                for (int i=0; i<rtmpArray.size(); i++)
+                                {
+                                    rtmpsUrl.add(rtmpArray.getString(i));
+                                }
+                                bundle.putStringArrayList("rtmpsUrl", rtmpsUrl);
+                            }
+
                             if (resultCallack != null)
-                                resultCallack.result(0, rtmpUrl, m3u8Url);
+                                resultCallack.result(0, bundle);
                             return;
                         }
                         else
                         {
-                            String msg = s.getString("msg");
+//                            String msg = s.getString("msg");
                             if (resultCallack != null)
-                                resultCallack.result(err, msg, msg);
+                                resultCallack.result(err, null);
                             return;
                         }
                     }
                 }
                 if (resultCallack != null)
-                    resultCallack.result(errcode, "", "");
+                    resultCallack.result(errcode, null);
             }
         });
     }

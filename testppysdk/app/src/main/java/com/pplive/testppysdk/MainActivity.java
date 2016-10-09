@@ -293,20 +293,22 @@ public class MainActivity extends BaseActivity{
             public void ok(HashMap<String, Object> result) {
                 final String liveid = (String)result.get("liveid");
                 showLoading("");
-                PPYRestApi.stream_watch(liveid, new PPYRestApi.StringResultWatchCallack() {
+                PPYRestApi.stream_watch((String)result.get("liveid"), new PPYRestApi.StringResultMapCallack() {
                     @Override
-                    public void result(int errcode, final String rtmpurl, final String live2url) {
+                    public void result(int errcode, final Bundle data) {
                         hideLoading();
-                        if (errcode==0)
+                        if (errcode==0 && data != null)
                         {
+                            String rtmpurl = data.getString("rtmpUrl");
                             if (rtmpurl != null && !rtmpurl.isEmpty())
                             {
                                 MainActivity.this.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         Intent intent = new Intent(MainActivity.this, WatchStreamingActivity.class);
-                                        intent.putExtra("liveurl", rtmpurl);
+                                        intent.putExtra("liveurl", data);
                                         intent.putExtra("liveid", liveid);
+                                        intent.putExtra("type", 1); // rtmp
                                         startActivity(intent);
                                     }
                                 });
@@ -343,53 +345,54 @@ public class MainActivity extends BaseActivity{
 //                start_watch_streaming();
 //            }
 //            break;
-            case R.id.start_watch_live2_streaming:
-            {
-                ConstInfo.showEditDialog(MainActivity.this, new AlertDialogResult2Callack() {
-                    @Override
-                    public void cannel() {
-
-                    }
-
-                    @Override
-                    public void ok(final String result) {
-                        showLoading("");
-                        PPYRestApi.stream_watch(result, new PPYRestApi.StringResultWatchCallack() {
-                            @Override
-                            public void result(int errcode, final String rtmpurl, final String m3u8Url) {
-                                hideLoading();
-                                if (errcode==0)
-                                {
-                                    if (rtmpurl != null && !rtmpurl.isEmpty())
-                                    {
-                                        MainActivity.this.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Intent intent = new Intent(MainActivity.this, WatchStreamingActivity.class);
-                                                intent.putExtra("liveurl", m3u8Url);
-                                                intent.putExtra("liveid", result);
-                                                startActivity(intent);
-                                            }
-                                        });
-                                    }
-                                    else
-                                        Toast.makeText(getApplication(), "主播已断开", Toast.LENGTH_SHORT).show();
-                                }
-                                else
-                                {
-                                    if (errcode == 1001)
-                                        Toast.makeText(getApplication(), "观看直播失败: 房间直播流状态无效", Toast.LENGTH_SHORT).show();
-                                    else if (errcode == 300005)
-                                        Toast.makeText(getApplication(), "观看直播失败: 房间号不存在", Toast.LENGTH_SHORT).show();
-                                    else
-                                        Toast.makeText(getApplication(), "观看直播失败: 网络错误", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-            break;
+//            case R.id.start_watch_live2_streaming:
+//            {
+//                ConstInfo.showEditDialog(MainActivity.this, new AlertDialogResult2Callack() {
+//                    @Override
+//                    public void cannel() {
+//
+//                    }
+//
+//                    @Override
+//                    public void ok(final String result) {
+//                        showLoading("");
+//                        PPYRestApi.stream_watch(result, new PPYRestApi.StringResultMapCallack() {
+//                            @Override
+//                            public void result(int errcode, final Bundle data) {
+//                                hideLoading();
+//                                if (errcode==0)
+//                                {
+//                                    if (data != null)
+//                                    if (rtmpurl != null && !rtmpurl.isEmpty())
+//                                    {
+//                                        MainActivity.this.runOnUiThread(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                Intent intent = new Intent(MainActivity.this, WatchStreamingActivity.class);
+//                                                intent.putExtra("liveurl", m3u8Url);
+//                                                intent.putExtra("liveid", result);
+//                                                startActivity(intent);
+//                                            }
+//                                        });
+//                                    }
+//                                    else
+//                                        Toast.makeText(getApplication(), "主播已断开", Toast.LENGTH_SHORT).show();
+//                                }
+//                                else
+//                                {
+//                                    if (errcode == 1001)
+//                                        Toast.makeText(getApplication(), "观看直播失败: 房间直播流状态无效", Toast.LENGTH_SHORT).show();
+//                                    else if (errcode == 300005)
+//                                        Toast.makeText(getApplication(), "观看直播失败: 房间号不存在", Toast.LENGTH_SHORT).show();
+//                                    else
+//                                        Toast.makeText(getApplication(), "观看直播失败: 网络错误", Toast.LENGTH_SHORT).show();
+//                                }
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//            break;
         }
     }
 
