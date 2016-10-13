@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">PPYSDK-Demo</string>
-
+    <string name="app_title">聚力云DEMO</string>
     <string name="ok">确定</string>
     <string name="known">知道了</string>
     <string name="cannel">取消</string>
@@ -16,11 +16,14 @@
     <string name="mobile_network_tip">您当前使用的是移动数据，确定开播吗？</string>
     <string name="mobile_network_play_tip">您当前使用的是移动数据，确定继续播放吗？</string>
     <string name="buffer_start">网络有些卡顿，正在拼命缓冲中...</string>
+    <string name="seek_buffer_start">正在拼命缓冲中...</string>
     <string name="stream_error">主播离开一会，请不要走开</string>
     <string name="stream_bitrate_down">当前网络较差，已为你降低码率直播</string>
     <string name="stream_bitrate_up">当前网络较好，已为你提升码率直播</string>
     <string name="close_tip">确定要关闭直播吗？</string>
     <string name="camera_premission_fail">相机权限不够</string>
     <string name="loading_tip">正在拼命加载...</string>
-
+    <string name="video_progress"><data><![CDATA[%1$s/%2$s]]></data></string>
+    <string name="empty_live_tip">当前无直播视频，去看回放视频吧</string>
+    <string name="empty_video_tip">当前无回放视频，去看直播吧</string>
 </resources>

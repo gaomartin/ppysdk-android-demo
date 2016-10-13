@@ -7,7 +7,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/popup_bg"
+        android:src="@drawable/popup_bg2"
         android:scaleType="centerCrop"
         android:id="@+id/bg"/>
     <ImageButton
@@ -23,7 +23,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_centerInParent="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="100dp"
         android:id="@+id/center_layout"
         android:gravity="center_horizontal"
         >
@@ -49,6 +50,30 @@
             android:layout_height="1px"
             android:orientation="horizontal"
             android:background="@color/color_7FFFFFFF"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="50dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:focusable="true"
+        android:layout_alignParentBottom="true">
+        <Button
+            android:background="@drawable/button_focus_bg2"
+            android:id="@+id/button_watch_video"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_FF04A5EB"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:text="观看回放"
+            android:textSize="@dimen/button_text_size"
+            />
     </LinearLayout>
 
 </RelativeLayout>

@@ -31,11 +31,15 @@ import cz.msebera.android.httpclient.util.EntityUtils;
 public class PPYRestApi {
 
     public static final String PPYUN_HOST           = "http://115.231.44.26:8081/";
+//    public static final String PPYUN_HOST           = "http://10.200.48.32:8080/";
+
     public static final String STREAM_CREATE        = "live/create/";
     public static final String STREAM_START         = "live/start/";
     public static final String STREAM_STOP          = "live/stop/";
     public static final String STREAM_WATCH         = "live/watch/";
     public static final String STREAM_STATUS        = "live/status/";
+    public static final String LIVE_LIST            = "live/living/list";
+    public static final String VIDEO_LIST            = "live/vod/list";
     public interface StringResultCallack
     {
         void result(int errcode, String data);
@@ -84,7 +88,10 @@ public class PPYRestApi {
     {
         new AsyncTaskHttpClient(getAbsoluteUrl(relative_url)+liveid, callack).execute();
     }
-
+    public static void asyn_http_get(String url, final PPYRestApi.StringResultCallack callack)
+    {
+        new AsyncTaskHttpClient(url, callack).execute();
+    }
     private static class AsyncTaskHttpClient extends AsyncTask<Integer, Integer, String> {
         private String mUrl;
         private PPYRestApi.StringResultCallack mCallback;
@@ -327,5 +334,73 @@ public class PPYRestApi {
                     resultCallack.result(errcode, "", "");
             }
         });
+    }
+
+    public static void get_watch_list(final int type, int page_index, int page_size, final ArrayListResultCallack<VideoItemInfo> resultCallack)
+    {
+        String url;
+        if (type == 1)
+        {
+            // live
+            url = PPYUN_HOST+LIVE_LIST+"?page_num="+page_index+"&page_size="+page_size;
+        }
+        else
+            url = PPYUN_HOST+VIDEO_LIST+"?page_num="+page_index+"&page_size="+page_size;
+
+
+        PPYRestApi.asyn_http_get(url, new StringResultCallack() {
+            @Override
+            public void result(int errcode, String response) {
+                if (response != null && !response.isEmpty()) {
+                    JSONObject s = JSON.parseObject(response);
+                    if (s != null) {
+                        int err = s.getIntValue("err");
+                        if (err == 0) {
+                            JSONArray data = s.getJSONArray("data");
+                            ArrayList<VideoItemInfo> itemInfos = new ArrayList<VideoItemInfo>();
+                            if (data != null)
+                            {
+                                for (int i=0; i<data.size(); i++)
+                                {
+                                    JSONObject object = data.getJSONObject(i);
+                                    if (object == null)
+                                        continue;
+
+                                    String liveid = object.getString("room_name");
+                                    if (liveid == null || liveid.isEmpty())
+                                        continue;
+                                    if (type == 2) // vod
+                                    {
+                                        int duration = object.getIntValue("duration");
+                                        if (duration < 10)
+                                            continue;
+                                    }
+
+                                    itemInfos.add(new VideoItemInfo(object.getString("channel_web_id"), object.getString("screen_shot"), liveid, type));
+                                }
+                            }
+
+                            if (resultCallack != null)
+                                resultCallack.result(0, itemInfos);
+                            return;
+                        }
+                        else
+                        {
+//                            String msg = s.getString("msg");
+                            if (resultCallack != null)
+                                resultCallack.result(err, null);
+                            return;
+                        }
+                    }
+                }
+                if (resultCallack != null)
+                    resultCallack.result(errcode, null);
+            }
+        });
+    }
+
+    public static String get_m3u8Url(String channel_web_id)
+    {
+        return "http://player.pptvyun.com/svc/m3u8player/pl/"+channel_web_id+".m3u8";
     }
 }

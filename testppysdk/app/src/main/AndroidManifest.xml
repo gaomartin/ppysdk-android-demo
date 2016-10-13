@@ -11,11 +11,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:name="com.pplive.testppysdk.TestApplication"
-        android:theme="@style/ImageTranslucentTheme">
-        <activity android:name=".MainActivity">
+        android:theme="@style/NoTitleBarThemeLight">
+        <activity android:name=".MainActivity" android:theme="@style/ImageTranslucentTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -23,8 +22,15 @@
         <activity android:name=".LiveStreamingActivity"  android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar">
         </activity>
-        <activity android:name=".WatchStreamingActivity" android:screenOrientation="portrait">
+        <activity android:name=".WatchStreamingActivity" android:screenOrientation="portrait"
+            >
         </activity>
+        <activity android:name=".WatchVideoActivity" android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".LiveStreamListActivity" android:screenOrientation="portrait"
+            >
+        </activity>
+
     </application>
 
 </manifest>

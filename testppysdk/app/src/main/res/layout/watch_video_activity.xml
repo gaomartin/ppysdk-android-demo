@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:fitsSystemWindows="true"
+    android:id="@+id/root_view"
+    tools:context="com.pplive.testppysdk.WatchStreamingActivity">
+
+    <android.slkmedia.mediaplayer.VideoView
+        android:id="@+id/live_player_videoview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/top_container"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_weight="1"></LinearLayout>
+        <ImageButton
+            android:layout_width="@dimen/button_small_icon_size"
+            android:layout_height="@dimen/button_small_icon_size"
+            android:id="@+id/lsq_closeButton"
+            android:background="@drawable/close"
+            android:layout_marginRight="5dp"
+            android:layout_gravity="center_vertical|right"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="horizontal"
+            android:gravity="right">
+            <TextView
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:paddingRight="10dp"
+                android:paddingLeft="15dp"
+                android:background="@drawable/toast_bg_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/msg_live"
+                android:gravity="center_vertical"
+                android:text="网络差"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:textColor="@color/color_FFFEFEFE"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp">
+            <Button
+                android:layout_width="@dimen/button_small_icon_size"
+                android:layout_height="@dimen/button_small_icon_size"
+                android:id="@+id/button_play"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="center"
+                android:background="@drawable/play"
+                />
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/seekbar_video_progress"
+                android:layout_gravity="center"
+                android:progressDrawable="@drawable/progressbar_color"
+                android:thumb="@drawable/thumb"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"
+                android:layout_weight="1"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingRight="5dp"
+                android:id="@+id/textview_video_duration"
+                android:gravity="center_vertical"
+                android:text="00:00/00:00"
+                android:visibility="visible"
+                android:textSize="14sp"
+                android:textColor="@color/color_255_255_255"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

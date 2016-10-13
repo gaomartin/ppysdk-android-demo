@@ -19,11 +19,18 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
 import java.util.HashMap;
 
@@ -464,5 +471,116 @@ public class ConstInfo {
         bitmap.setPixels(pix, 0, w, 0, 0, w, h);
 
         return (bitmap);
+    }
+
+//    private static int totalSeconds(String startTime, String endTime) {
+//
+//        String[] st = startTime.split(":");
+//        String[] et = endTime.split(":");
+//
+//        int st_h = Integer.valueOf(st[0]);
+//        int st_m = Integer.valueOf(st[1]);
+//        int st_s = Integer.valueOf(st[2]);
+//
+//        int et_h = Integer.valueOf(et[0]);
+//        int et_m = Integer.valueOf(et[1]);
+//        int et_s = Integer.valueOf(et[2]);
+//
+//        int totalSeconds = (et_h - st_h) * 3600 + (et_m - st_m) * 60
+//                + (et_s - st_s);
+//
+//        return totalSeconds;
+//
+//    }
+
+    /**
+     * 根据当前选择的秒数还原时间点
+     *
+     * @param args
+     */
+
+    public static String progress2TimeString(int progress) {
+        String return_h = "", return_m = "", return_s = "";
+        int h = progress / 3600;
+        int m = (progress % 3600) / 60;
+        int s = (progress % 3600) % 60;
+
+        if (h < 10) {
+            return_h = "0" + (h);
+        } else {
+            return_h = h + "";
+        }
+        if ((m) < 10) {
+            return_m = "0" + (m);
+        } else {
+            return_m = m + "";
+        }
+        if ((s) < 10) {
+            return_s = "0" + (s);
+        } else {
+            return_s = s + "";
+        }
+        return return_h + ":" + return_m + ":" + return_s;
+    }
+
+    private static void setImageView(String imageUri, Bitmap loadedImage, View parentView) {
+        if (parentView != null) {
+            ImageView image = (ImageView) parentView.findViewWithTag(imageUri);
+            while (image != null)
+            {
+//				LogUtils.d("setImageView tag i="+i+" imageurl="+imageUri);
+                image.setTag("");
+                image.setImageBitmap(loadedImage);
+                image = (ImageView) parentView.findViewWithTag(imageUri);
+            }
+        }
+    }
+
+    public static void loadImage(String imageUrl, int defaultResId, ImageSize imageSize, final ImageView imageView, final View parentView) {
+        if (TextUtils.isEmpty(imageUrl)) {
+            imageView.setTag("");
+            imageView.setImageResource(defaultResId);
+            return;
+        }
+
+        String memoryCacheKey = MemoryCacheUtils.generateKey(imageUrl, imageSize);
+        Bitmap bitmap = ImageLoader.getInstance().getMemoryCache().get(memoryCacheKey);
+        if (bitmap != null && !bitmap.isRecycled())
+        {
+            imageView.setTag("");
+            //LogUtils.d("use cache imageurl="+memoryCacheKey);
+            imageView.setImageBitmap(bitmap);
+        }
+        else {
+            //LogUtils.d("reload imageurl="+imageUrl);
+            imageView.setTag(imageUrl);
+            imageView.setImageResource(defaultResId);
+            ImageLoader.getInstance().loadImage(imageUrl, imageSize, new ImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                    //LogUtils.d("reload onLoadingFailed imageurl="+imageUri);
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    //LogUtils.d("reload onLoadingComplete imageurl="+imageUri);
+                    if (parentView != null) {
+                        setImageView(imageUri, loadedImage, parentView);
+                    }
+                    else
+                        imageView.setImageBitmap(loadedImage);
+                }
+
+                @Override
+                public void onLoadingCancelled(String imageUri, View view) {
+                    //LogUtils.d("reload onLoadingCancelled imageurl="+imageUri);
+                }
+            });
+        }
     }
 }

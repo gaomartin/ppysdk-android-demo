@@ -151,7 +151,28 @@ public class LiveStreamingActivity extends BaseActivity {
             int video_h = PPYStream.getInstance().getVideoHeight();
             String str = String.format(getString(R.string.live_data_tip), videobitrate, (int)fps, vdeio_w, video_h);
             mDataTipTextview.setText(str);
+
+            get_watch_url();
         }
+    }
+    private String mM3u8Url;
+    private void get_watch_url()
+    {
+        if (mM3u8Url != null && !mM3u8Url.isEmpty())
+            return;
+        PPYRestApi.stream_watch(mLiveId, new PPYRestApi.StringResultMapCallack() {
+            @Override
+            public void result(int errcode, final Bundle data) {
+                if (errcode==0 && data != null)
+                {
+                    String m3u8Url = data.getString("m3u8Url");
+                    if (m3u8Url != null && !m3u8Url.isEmpty())
+                    {
+                        mM3u8Url = m3u8Url;
+                    }
+                }
+            }
+        });
     }
     ScreenWake mScreenWake = null;
     @Override
@@ -324,8 +345,9 @@ public class LiveStreamingActivity extends BaseActivity {
                     Log.d(ConstInfo.TAG, "onStateChanged i=" +i);
                     if (i == PPYStatusListener.PPY_SDK_INIT_SUCC)
                     {
-                        Log.d(ConstInfo.TAG, "camera init success, start stream");
+                        Log.d(ConstInfo.TAG, "camera init success, start stream ");
                         long currentTime = System.currentTimeMillis();
+                        Log.d(ConstInfo.TAG, "camera init success, start stream mLastStopTime="+mLastStopTime+" currentTime="+currentTime);
                         if (mLastStopTime != 0 && (currentTime - mLastStopTime > MAX_STOP_TIME))
                         {
                             PPYRestApi.stream_stop(mLiveId, null);
@@ -563,11 +585,11 @@ public class LiveStreamingActivity extends BaseActivity {
     {
         super.onPause();
         mScreenWake.enable();
-
-        Log.d(ConstInfo.TAG, "onPause");
+        mLastStopTime = System.currentTimeMillis();
+        Log.d(ConstInfo.TAG, "onPause mLastStopTime="+mLastStopTime);
         PPYStream.getInstance().OnPause();
         StopStream();
-        mLastStopTime = System.currentTimeMillis();
+
         mIsInBackground = true;
     }
 
@@ -650,7 +672,12 @@ public class LiveStreamingActivity extends BaseActivity {
 
                     @Override
                     public void ok() {
-                        finish();
+                        PPYStream.getInstance().OnPause();
+                        StopStream();
+                        mIsInBackground = true;
+                        PPYRestApi.stream_stop(mLiveId, null);
+
+                        show_play_end_popup();
                     }
                 });
             }
@@ -703,7 +730,12 @@ public class LiveStreamingActivity extends BaseActivity {
 
             @Override
             public void ok() {
-                finish();
+                PPYStream.getInstance().OnPause();
+                StopStream();
+                mIsInBackground = true;
+                PPYRestApi.stream_stop(mLiveId, null);
+
+                show_play_end_popup();
             }
         });
     }
@@ -775,11 +807,44 @@ public class LiveStreamingActivity extends BaseActivity {
     {
         LayoutInflater layoutInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final RelativeLayout dialogView = (RelativeLayout)layoutInflater.inflate(R.layout.layout_play_end, null);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.popup_bg);
+        //final Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.popup_bg);
         ImageButton close = (ImageButton)dialogView.findViewById(R.id.close);
-        ImageView bg = (ImageView)dialogView.findViewById(R.id.bg);
-        Bitmap fastblurBitmap = ConstInfo.fastblur(bitmap, 20);
-        bg.setImageBitmap(fastblurBitmap);
+        Button button_watch_video = (Button)dialogView.findViewById(R.id.button_watch_video);
+        button_watch_video.setOnTouchListener(new View.OnTouchListener() {
+              @Override
+              public boolean onTouch(View view, MotionEvent motionEvent) {
+                  if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                      if (TextUtils.isEmpty(mM3u8Url))
+                      {
+                          // toast
+                      }
+                      else
+                      {
+                          Intent intent = new Intent(LiveStreamingActivity.this, WatchVideoActivity.class);
+                          intent.putExtra("m3u8Url", mM3u8Url);
+                          startActivity(intent);
+                          hide_play_end_popup();
+                      }
+                  }
+                  return false;
+              }
+        });
+//        final ImageView bg = (ImageView)dialogView.findViewById(R.id.bg);
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try{
+//                    final Bitmap fastblurBitmap = ConstInfo.fastblur(bitmap, 40);
+//                    mHandle.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            bg.setImageBitmap(fastblurBitmap);
+//                        }
+//                    });
+//                }catch (Exception e) { e.printStackTrace();}
+//            }
+//        }).start();
+
         dialogView.setFocusable(true);
         dialogView.setFocusableInTouchMode(true);
 

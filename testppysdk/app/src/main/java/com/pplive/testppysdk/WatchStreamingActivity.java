@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -111,10 +112,10 @@ public class WatchStreamingActivity extends BaseActivity{
         mUrlType = PlayType.get(getIntent().getIntExtra("type", 0));
         Bundle data = getIntent().getBundleExtra("liveurl");
         mRtmpUrlList = data.getStringArrayList("rtmpsUrl");
-        if (mRtmpUrlList != null && mRtmpUrlList.size() > 0)
-            mRtmpUrl = mRtmpUrlList.get(0);
-        else
-            mRtmpUrl = data.getString("rtmpUrl");
+//        if (mRtmpUrlList != null && mRtmpUrlList.size() > 0)
+//            mRtmpUrl = mRtmpUrlList.get(0);
+//        else
+        mRtmpUrl = data.getString("rtmpUrl");
         mHdlUrl = data.getString("hdlUrl");
         mM3u8Url = data.getString("m3u8Url");
         if (TextUtils.isEmpty(mRtmpUrl) || TextUtils.isEmpty(mHdlUrl))
@@ -334,6 +335,16 @@ public class WatchStreamingActivity extends BaseActivity{
                 mVideoWidth = i;
                 mVideoHeight = i1;
             }
+
+            @Override
+            public void onBufferingUpdate(int i) {
+                Log.d(ConstInfo.TAG, "play onBufferingUpdate i="+i);
+            }
+
+            @Override
+            public void OnSeekComplete() {
+                Log.d(ConstInfo.TAG, "play OnSeekComplete");
+            }
         });
 
         mHandle.postDelayed(mUpdateDataTipRunable, 1000);
@@ -537,7 +548,7 @@ public class WatchStreamingActivity extends BaseActivity{
     private void create_play_error_popup(final AlertDialogResult3Callack result2Callack)
     {
         LayoutInflater layoutInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final RelativeLayout dialogView = (RelativeLayout)layoutInflater.inflate(R.layout.layout_play_end, null);
+        final RelativeLayout dialogView = (RelativeLayout)layoutInflater.inflate(R.layout.layout_play_error, null);
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.popup_bg);
         ImageButton close = (ImageButton)dialogView.findViewById(R.id.close);
         ImageView bg = (ImageView)dialogView.findViewById(R.id.bg);
@@ -614,6 +625,26 @@ public class WatchStreamingActivity extends BaseActivity{
         final RelativeLayout dialogView = (RelativeLayout)layoutInflater.inflate(R.layout.layout_play_end, null);
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.popup_bg);
         ImageButton close = (ImageButton)dialogView.findViewById(R.id.close);
+        Button button_watch_video = (Button)dialogView.findViewById(R.id.button_watch_video);
+        button_watch_video.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (TextUtils.isEmpty(mM3u8Url))
+                    {
+                        // toast
+                    }
+                    else
+                    {
+                        Intent intent = new Intent(WatchStreamingActivity.this, WatchVideoActivity.class);
+                        intent.putExtra("m3u8Url", mM3u8Url);
+                        startActivity(intent);
+                        WatchStreamingActivity.this.finish();
+                    }
+                }
+                return false;
+            }
+        });
         ImageView bg = (ImageView)dialogView.findViewById(R.id.bg);
         Bitmap fastblurBitmap = ConstInfo.fastblur(bitmap, 18);
         bg.setImageBitmap(fastblurBitmap);

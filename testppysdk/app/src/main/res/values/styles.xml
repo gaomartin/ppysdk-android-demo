@@ -39,4 +39,15 @@
         <!--<item name="android:textColor">@color/color_150_150_150</item>-->
         <!--<item name="android:textSize">@dimen/text_size_28</item>-->
     <!--</style>-->
+    <style name="MyTheme" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowBackground">@color/color_255_255_255</item>
+    </style>
+    <style name="NoTitleBarThemeLight" parent="@style/MyTheme">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:screenOrientation">portrait</item>
+    </style>
 </resources>

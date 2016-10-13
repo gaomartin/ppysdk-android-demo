@@ -68,7 +68,11 @@ public class MainActivity extends BaseActivity{
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP)
                 {
-                    start_watch_streaming();
+                    Intent intent = new Intent(MainActivity.this, LiveStreamListActivity.class);
+                    intent.putExtra("type", 1); // 1: live, 2: video
+                    startActivity(intent);
+
+//                    start_watch_streaming();
                 }
                 return false;
             }
