@@ -232,7 +232,7 @@ public class MainActivity extends BaseActivity{
                         }
                         else
                         {
-                            if (errcode == 399995)
+                            if (errcode == 96)
                                 Toast.makeText(getApplication(), "创建直播失败: 房间号已存在", Toast.LENGTH_SHORT).show();
                             else
                                 Toast.makeText(getApplication(), "创建直播失败: 网络错误", Toast.LENGTH_SHORT).show();

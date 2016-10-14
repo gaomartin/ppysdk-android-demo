@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -63,7 +64,6 @@ public class LiveStreamListActivity extends BaseActivity
 				Intent intent = new Intent(LiveStreamListActivity.this, LiveStreamListActivity.class);
 				intent.putExtra("type", 2); // 1: live, 2: video
 				startActivity(intent);
-				finish();
 			}
 		});
 		imageview_watch_video.setVisibility((mType == 1)?View.VISIBLE:View.GONE);
@@ -201,6 +201,17 @@ public class LiveStreamListActivity extends BaseActivity
 										});
 									}
 								}
+								else
+								{
+									if (errcode == 98)
+									{
+										Toast.makeText(getApplication(), "直播已结束，请至回放页面观看", Toast.LENGTH_SHORT).show();
+										getDatas(true);
+									}
+									else
+										Toast.makeText(getApplication(), "观看直播失败: 网络错误", Toast.LENGTH_SHORT).show();
+								}
+
 							}
 						});
 					}
@@ -250,7 +261,7 @@ public class LiveStreamListActivity extends BaseActivity
 						public void run() {
 							hideLoading();
 							mPullRefreshListView.onRefreshComplete();
-							if (errcode == 0 && result != null && !result.isEmpty())
+							if (errcode == 0 && result != null)
 							{
 								mPageIndex++;
 								mVideoArrayList = result;

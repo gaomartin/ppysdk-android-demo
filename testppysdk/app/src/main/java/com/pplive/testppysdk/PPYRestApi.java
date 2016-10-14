@@ -40,6 +40,7 @@ public class PPYRestApi {
     public static final String STREAM_STATUS        = "live/status/";
     public static final String LIVE_LIST            = "live/living/list";
     public static final String VIDEO_LIST            = "live/vod/list";
+    public static final String STREAM_DETAIL            = "live/detail/";
     public interface StringResultCallack
     {
         void result(int errcode, String data);
@@ -270,6 +271,7 @@ public class PPYRestApi {
                             bundle.putString("rtmpUrl", data.getString("rtmpUrl"));
                             bundle.putString("m3u8Url", data.getString("m3u8Url"));
                             bundle.putString("hdlUrl", data.getString("hdlUrl"));
+                            bundle.putString("channelWebId", data.getString("channelWebId"));
 
                             JSONArray rtmpArray = data.getJSONArray("rtmpsUrl");
                             if (rtmpArray != null)
@@ -382,6 +384,40 @@ public class PPYRestApi {
 
                             if (resultCallack != null)
                                 resultCallack.result(0, itemInfos);
+                            return;
+                        }
+                        else
+                        {
+//                            String msg = s.getString("msg");
+                            if (resultCallack != null)
+                                resultCallack.result(err, null);
+                            return;
+                        }
+                    }
+                }
+                if (resultCallack != null)
+                    resultCallack.result(errcode, null);
+            }
+        });
+    }
+
+    public static void stream_detail(final String channel_id, final StringResultMapCallack resultCallack)
+    {
+        PPYRestApi.asyn_http_get(PPYUN_HOST+STREAM_DETAIL+channel_id, new StringResultCallack() {
+            @Override
+            public void result(int errcode, String response) {
+                if (response != null && !response.isEmpty()) {
+                    JSONObject s = JSON.parseObject(response);
+                    if (s != null) {
+                        int err = s.getIntValue("err");
+                        if (err == 0) {
+                            JSONObject data = s.getJSONObject("data");
+
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("duration", data.getIntValue("duration"));
+
+                            if (resultCallack != null)
+                                resultCallack.result(0, bundle);
                             return;
                         }
                         else

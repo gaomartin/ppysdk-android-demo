@@ -113,10 +113,16 @@ public class WatchVideoActivity extends BaseActivity{
             }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                Log.d(ConstInfo.TAG, "onStopTrackingTouch progress="+seekBar.getProgress());
-                if (mIsAlreadyPlay)
-                    mVideoView.seekTo(seekBar.getProgress());
+            public void onStopTrackingTouch(final SeekBar seekBar) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(ConstInfo.TAG, "onStopTrackingTouch progress="+seekBar.getProgress());
+
+                        if (mIsAlreadyPlay)
+                            mVideoView.seekTo(seekBar.getProgress());
+                    }
+                }).start();
             }
         });
 
@@ -145,6 +151,7 @@ public class WatchVideoActivity extends BaseActivity{
             @Override
             public void onClick(View view) {
                 mIsExiting = true;
+
                 finish();
             }
         });

@@ -104,6 +104,7 @@ public class LiveStreamingActivity extends BaseActivity {
 
     private TextView mMsgTextview;
     private boolean mIsPlayEnd = false;
+    private String mChannelWebId;
     // 美颜处理
 
     //------------------------------------------------------
@@ -169,6 +170,7 @@ public class LiveStreamingActivity extends BaseActivity {
                     if (m3u8Url != null && !m3u8Url.isEmpty())
                     {
                         mM3u8Url = m3u8Url;
+                        mChannelWebId = data.getString("channelWebId");
                     }
                 }
             }
@@ -336,6 +338,9 @@ public class LiveStreamingActivity extends BaseActivity {
     boolean mIsReconnectTime = false;
     long mReconnectLastTime = 0;
     final long MAX_RECONNECT_TIMEOUT = 30*1000;
+
+    long mLastLiveStartTime = 0;
+    final long MAX_LIVE_TIME = 10*1000;
     PPYStatusListener mPPStatusListener = new PPYStatusListener() {
         @Override
         public void onStateChanged(final int i, Object o) {
@@ -350,6 +355,7 @@ public class LiveStreamingActivity extends BaseActivity {
                         Log.d(ConstInfo.TAG, "camera init success, start stream mLastStopTime="+mLastStopTime+" currentTime="+currentTime);
                         if (mLastStopTime != 0 && (currentTime - mLastStopTime > MAX_STOP_TIME))
                         {
+                            hideLoading();
                             PPYRestApi.stream_stop(mLiveId, null);
                             show_play_end_popup();
                         }
@@ -409,6 +415,8 @@ public class LiveStreamingActivity extends BaseActivity {
                                         if (errcode == 0 && (livestatus != null && livestatus.equals("living")) && (streamstatus != null && streamstatus.equals("ok"))) {
                                             mIsReconnectTime = false;
                                             mReconnectLastTime = 0;
+                                            if (mLastLiveStartTime == 0)
+                                                mLastLiveStartTime = System.currentTimeMillis();
                                             mMsgTextview.setText(getString(R.string.push_stream_ok));
                                             mMsgTextview.setVisibility(View.VISIBLE);
                                             mHandle.postDelayed(mHideMsgRunable, 3000);
@@ -817,13 +825,32 @@ public class LiveStreamingActivity extends BaseActivity {
                       if (TextUtils.isEmpty(mM3u8Url))
                       {
                           // toast
+                          Toast.makeText(getApplication(), "网络错误", Toast.LENGTH_SHORT).show();
                       }
                       else
                       {
-                          Intent intent = new Intent(LiveStreamingActivity.this, WatchVideoActivity.class);
-                          intent.putExtra("m3u8Url", mM3u8Url);
-                          startActivity(intent);
-                          hide_play_end_popup();
+                          PPYRestApi.stream_detail(mChannelWebId, new PPYRestApi.StringResultMapCallack() {
+                              @Override
+                              public void result(int errcode, Bundle result) {
+                                  if (errcode == 0 && result != null)
+                                  {
+                                      int duration = result.getInt("duration");
+                                      if (duration > 10)
+                                      {
+                                          Intent intent = new Intent(LiveStreamingActivity.this, WatchVideoActivity.class);
+                                          intent.putExtra("m3u8Url", mM3u8Url);
+                                          startActivity(intent);
+                                          hide_play_end_popup();
+                                      }
+                                      else
+                                      {
+                                          Toast.makeText(getApplication(), "直播时长太短，不能观看", Toast.LENGTH_SHORT).show();
+                                          hide_play_end_popup();
+                                      }
+                                  }
+                              }
+                          });
+
                       }
                   }
                   return false;

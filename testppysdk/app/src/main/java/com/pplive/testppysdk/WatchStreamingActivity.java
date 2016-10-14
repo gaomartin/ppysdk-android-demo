@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -57,6 +58,7 @@ public class WatchStreamingActivity extends BaseActivity{
     PlayType mUrlType;
     PlayMode mRtmpPlayMode = PlayMode.GAOQING;
     String mLiveId;
+    String mChannelWebId;
     long mReconnectTimeout = 0;
     static final long RECONNECT_TIMEOUT = 30*1000;
     boolean mIsDataTipOpen = true;
@@ -118,6 +120,8 @@ public class WatchStreamingActivity extends BaseActivity{
         mRtmpUrl = data.getString("rtmpUrl");
         mHdlUrl = data.getString("hdlUrl");
         mM3u8Url = data.getString("m3u8Url");
+        mChannelWebId = data.getString("channelWebId");
+
         if (TextUtils.isEmpty(mRtmpUrl) || TextUtils.isEmpty(mHdlUrl))
             mUrlType = PlayType.M3U8;
 
@@ -334,6 +338,20 @@ public class WatchStreamingActivity extends BaseActivity{
                 Log.d(ConstInfo.TAG, "play setOnVideoSizeChanged w="+i+" h="+i1);
                 mVideoWidth = i;
                 mVideoHeight = i1;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mVideoWidth > mVideoHeight)
+                        {
+                            // 横屏
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        }
+                        else {
+                            // 竖屏
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        }
+                    }
+                });
             }
 
             @Override
@@ -633,13 +651,32 @@ public class WatchStreamingActivity extends BaseActivity{
                     if (TextUtils.isEmpty(mM3u8Url))
                     {
                         // toast
+                        Toast.makeText(getApplication(), "网络错误", Toast.LENGTH_SHORT).show();
                     }
                     else
                     {
-                        Intent intent = new Intent(WatchStreamingActivity.this, WatchVideoActivity.class);
-                        intent.putExtra("m3u8Url", mM3u8Url);
-                        startActivity(intent);
-                        WatchStreamingActivity.this.finish();
+                        PPYRestApi.stream_detail(mChannelWebId, new PPYRestApi.StringResultMapCallack() {
+                            @Override
+                            public void result(int errcode, Bundle result) {
+                                if (errcode == 0 && result != null)
+                                {
+                                    int duration = result.getInt("duration");
+                                    if (duration > 10)
+                                    {
+                                        Intent intent = new Intent(WatchStreamingActivity.this, WatchVideoActivity.class);
+                                        intent.putExtra("m3u8Url", mM3u8Url);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(getApplication(), "直播时长太短，不能观看", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                }
+                            }
+                        });
+
                     }
                 }
                 return false;
