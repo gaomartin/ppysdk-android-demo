@@ -55,7 +55,7 @@ public class WatchStreamingActivity extends BaseActivity{
     String mM3u8Url; // m3u8
     ArrayList<String> mRtmpUrlList = new ArrayList<>();
     String mCurrentUrl;
-    PlayType mUrlType;
+    PlayType mUrlType = PlayType.RTMP;
     PlayMode mRtmpPlayMode = PlayMode.GAOQING;
     String mLiveId;
     String mChannelWebId;
@@ -80,6 +80,7 @@ public class WatchStreamingActivity extends BaseActivity{
 
     private boolean mIsAlreadyPlay = false;
     private boolean mIsPlayStart = false;
+    private Bundle mBundleParam;
     Runnable mUpdateDataTipRunable = new Runnable() {
         @Override
         public void run() {
@@ -111,16 +112,16 @@ public class WatchStreamingActivity extends BaseActivity{
 
         setContentView(R.layout.watch_streaming_activity);
         mLiveId = getIntent().getStringExtra("liveid");
-        mUrlType = PlayType.get(getIntent().getIntExtra("type", 0));
-        Bundle data = getIntent().getBundleExtra("liveurl");
-        mRtmpUrlList = data.getStringArrayList("rtmpsUrl");
+        //mUrlType = PlayType.get(getIntent().getIntExtra("type", 0));
+        mBundleParam = getIntent().getBundleExtra("liveurl");
+        mRtmpUrlList = mBundleParam.getStringArrayList("rtmpsUrl");
 //        if (mRtmpUrlList != null && mRtmpUrlList.size() > 0)
 //            mRtmpUrl = mRtmpUrlList.get(0);
 //        else
-        mRtmpUrl = data.getString("rtmpUrl");
-        mHdlUrl = data.getString("hdlUrl");
-        mM3u8Url = data.getString("m3u8Url");
-        mChannelWebId = data.getString("channelWebId");
+        mRtmpUrl = mBundleParam.getString("rtmpUrl");
+        mHdlUrl = mBundleParam.getString("hdlUrl");
+        mM3u8Url = mBundleParam.getString("m3u8Url");
+        mChannelWebId = mBundleParam.getString("channelWebId");
 
         if (TextUtils.isEmpty(mRtmpUrl) || TextUtils.isEmpty(mHdlUrl))
             mUrlType = PlayType.M3U8;
@@ -132,6 +133,20 @@ public class WatchStreamingActivity extends BaseActivity{
 
         msg_data_tip = (TextView)findViewById(R.id.msg_tip);
         mMsgTextview = (TextView)findViewById(R.id.msg_live);
+        final Button button_litter_player = (Button) findViewById(R.id.button_litter_player);
+        button_litter_player.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(WatchStreamingActivity.this, FloatWindowService.class);
+                Bundle bundle = new Bundle();
+                bundle.putBundle("liveurl", mBundleParam);
+                bundle.putString("liveid", mLiveId);
+                bundle.putInt(FloatWindowService.PLAY_TYPE, 1); // 1: live, 0: vod
+                intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
+                startService(intent);
+                finish();
+            }
+        });
 
         final Button button_data_tip = (Button) findViewById(R.id.button_data_tip);
         button_data_tip.setOnClickListener(new View.OnClickListener() {
@@ -142,6 +157,8 @@ public class WatchStreamingActivity extends BaseActivity{
                 msg_data_tip.setVisibility(mIsDataTipOpen?View.VISIBLE:View.GONE);
             }
         });
+
+
         final LinearLayout rtmp_play_mode_control_container = (LinearLayout)findViewById(R.id.rtmp_play_mode_control_container);
         final TextView textview_rtmp_play_mode = (TextView) findViewById(R.id.textview_rtmp_play_mode);
         final TextView textview_play_type = (TextView) findViewById(R.id.textview_play_type);

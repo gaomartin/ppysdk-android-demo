@@ -121,6 +121,14 @@
                 android:layout_marginLeft="10dp"
                 android:background="@drawable/data_tip_open"
                 />
+            <Button
+                android:layout_width="@dimen/button_small_icon_size"
+                android:layout_height="@dimen/button_small_icon_size"
+                android:id="@+id/button_litter_player"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/litter_player"
+                />
+
         </LinearLayout>
 
         <LinearLayout

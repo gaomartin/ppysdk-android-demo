@@ -178,6 +178,7 @@ public class LiveStreamListActivity extends BaseActivity
 			convertView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
+
 					if (videoItemInfo.getType() == 1)
 					{
 						// live
@@ -187,16 +188,30 @@ public class LiveStreamListActivity extends BaseActivity
 							public void result(int errcode, final Bundle data) {
 								hideLoading();
 								if (errcode==0 && data != null) {
-									String rtmpurl = data.getString("rtmpUrl");
+									final String rtmpurl = data.getString("rtmpUrl");
 									if (rtmpurl != null && !rtmpurl.isEmpty()) {
 										runOnUiThread(new Runnable() {
 											@Override
 											public void run() {
-												Intent intent = new Intent(LiveStreamListActivity.this, WatchStreamingActivity.class);
-												intent.putExtra("liveurl", data);
-												intent.putExtra("liveid", videoItemInfo.getLiveid());
-												intent.putExtra("type", 1); // rtmp
-												startActivity(intent);
+												if (!FloatWindowService.mIsFloatWindowShown)
+												{
+													Intent intent = new Intent(LiveStreamListActivity.this, WatchStreamingActivity.class);
+													intent.putExtra("liveurl", data);
+													intent.putExtra("liveid", videoItemInfo.getLiveid());
+													//intent.putExtra("type", 1); // rtmp
+													startActivity(intent);
+												}
+												else
+												{
+													Intent intent = new Intent(LiveStreamListActivity.this, FloatWindowService.class);
+													Bundle bundle = new Bundle();
+													bundle.putBundle("liveurl", data);
+													bundle.putString("liveid", videoItemInfo.getLiveid());
+													bundle.putInt(FloatWindowService.PLAY_TYPE, 1); // 1: live, 0: vod
+													intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
+													startService(intent);
+												}
+
 											}
 										});
 									}
@@ -218,9 +233,22 @@ public class LiveStreamListActivity extends BaseActivity
 					else
 					{
 						// vod
-						Intent intent = new Intent(LiveStreamListActivity.this, WatchVideoActivity.class);
-						intent.putExtra("m3u8Url", PPYRestApi.get_m3u8Url(videoItemInfo.getPlayurl()));
-						startActivity(intent);
+						if (!FloatWindowService.mIsFloatWindowShown)
+						{
+							Intent intent = new Intent(LiveStreamListActivity.this, WatchVideoActivity.class);
+							intent.putExtra("m3u8Url", PPYRestApi.get_m3u8Url(videoItemInfo.getPlayurl()));
+							startActivity(intent);
+						}
+						else
+						{
+							Intent intent = new Intent(LiveStreamListActivity.this, FloatWindowService.class);
+							Bundle bundle = new Bundle();
+							bundle.putString("m3u8Url", PPYRestApi.get_m3u8Url(videoItemInfo.getPlayurl()));
+							bundle.putInt(FloatWindowService.PLAY_TYPE, 0); // 1: live, 0: vod
+							intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
+							startService(intent);
+						}
+
 					}
 				}
 			});
@@ -300,32 +328,5 @@ public class LiveStreamListActivity extends BaseActivity
 			});
 		}
 	}
-////
-//	private class GetDataTask extends AsyncTask<Void, Void, Void>
-//	{
-//
-//		@Override
-//		protected Void doInBackground(Void... params)
-//		{
-//			try
-//			{
-//				Thread.sleep(2000);
-//			} catch (InterruptedException e)
-//			{
-//			}
-//			return null;
-//		}
-//
-//		@Override
-//		protected void onPostExecute(Void result)
-//		{
-//			hideLoading();
-////			mListItems.add("" + mItemCount++);
-////			mAdapter.notifyDataSetChanged();
-//			// Call onRefreshComplete when the list has been refreshed.
-//			mPullRefreshListView.onRefreshComplete();
-//			mEmptyViewHelper.showEmptyView(mVideoArrayList.isEmpty());
-//
-//		}
-//	}
+
 }

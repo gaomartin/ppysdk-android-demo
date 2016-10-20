@@ -99,6 +99,22 @@ public class WatchVideoActivity extends BaseActivity{
         textview_video_duration = (TextView)findViewById(R.id.textview_video_duration);
         mMsgTextview = (TextView)findViewById(R.id.msg_live);
 
+        final Button button_litter_player = (Button) findViewById(R.id.button_litter_player);
+        button_litter_player.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(WatchVideoActivity.this, FloatWindowService.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("m3u8Url", getCurrentUrl());
+                bundle.putInt(FloatWindowService.PLAY_TYPE, 0); // 1: live, 0: vod
+                intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
+                startService(intent);
+
+                finish();
+            }
+        });
+
         mVideoSeekbar = (SeekBar)findViewById(R.id.seekbar_video_progress);
 
         mVideoSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

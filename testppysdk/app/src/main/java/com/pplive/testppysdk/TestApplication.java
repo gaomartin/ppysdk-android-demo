@@ -3,6 +3,7 @@ package com.pplive.testppysdk;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
 
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
@@ -26,6 +27,10 @@ public class TestApplication extends Application {
     private static final int MAX_DISK_CACHE_SIZE = 200 * 1024 * 1024; // 30Mb
     private static final int MAX_MEMORY_CACHE_SIZE = 30 * 1024 * 1024; // 30Mb
     private String mImageCachePath;
+    public static int SCREEN_WIDTH = 0;
+    public static int SCREEN_HEIGHT = 0;
+//    public static int SCREEN_WIDTH_DP = 0;
+//    public static int SCREEN_HEIGHT_DP = 0;
     @Override
     public void onCreate()
     {
@@ -45,6 +50,22 @@ public class TestApplication extends Application {
             file2.mkdirs();
         }
         initImageLoader(this);
+
+        DisplayMetrics localDisplayMetrics = getResources().getDisplayMetrics();
+
+        SCREEN_WIDTH = localDisplayMetrics.widthPixels;
+        SCREEN_HEIGHT = localDisplayMetrics.heightPixels;
+
+        // 屏幕密度:指每平方英寸中的像素数,在DisplayMetrics类中，该密度值为dpi/160
+        float density = localDisplayMetrics.density;
+        // 屏幕密度(dpi):指每英寸中的像素数
+        float densityDpi = localDisplayMetrics.densityDpi;
+
+//        // 屏幕宽度(dip)
+//        SCREEN_WIDTH_DP = CommonFunction.px2dip(this, SCREEN_WIDTH);
+//        // 屏幕高度(dip)
+//        SCREEN_HEIGHT_DP = CommonFunction.px2dip(this, SCREEN_HEIGHT);
+
     }
 
     private void initImageLoader(Context context)

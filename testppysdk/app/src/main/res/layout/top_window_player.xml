@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/root_view"
+    android:background="@drawable/top_window_player_bg"
+    >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:src="@drawable/logo"
+        android:layout_centerInParent="true"
+        />
+
+    <ProgressBar android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressbar_loading"
+        android:visibility="gone"
+        android:indeterminateDrawable="@anim/loading_anim"
+        android:layout_centerInParent="true"
+        />
+
+    <android.slkmedia.mediaplayer.VideoView
+        android:id="@+id/live_player_videoview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_centerInParent="true" />
+
+    <ImageButton
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/lsq_closeButton"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
+        android:background="@drawable/close_small"
+        android:layout_alignParentRight="true"/>
+</RelativeLayout>

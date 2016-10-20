@@ -293,6 +293,7 @@ public class LiveStreamingActivity extends BaseActivity {
         Log.d(ConstInfo.TAG, "StartStream");
         showLoading(getString(R.string.loading_tip));
         PPYStream.getInstance().StartStream();
+        PPYStream.getInstance().EnableAudio(!mMuted);
         mStartRunableTimer = new Timer();
         mStartRunableTimer.schedule(new TimerTask() {
             @Override

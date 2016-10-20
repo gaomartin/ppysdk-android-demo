@@ -222,6 +222,10 @@ public class MainActivity extends BaseActivity{
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    Intent intent1 = new Intent(MainActivity.this, FloatWindowService.class);
+                                    intent1.putExtra(FloatWindowService.ACTION_EXIT, 1);
+                                    startService(intent1);
+
                                     Intent intent = new Intent(MainActivity.this, LiveStreamingActivity.class);
                                     intent.putExtra("rtmpurl", url);
                                     intent.putExtra("liveid", liveid);
@@ -268,6 +272,10 @@ public class MainActivity extends BaseActivity{
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    Intent intent1 = new Intent(MainActivity.this, FloatWindowService.class);
+                                    intent1.putExtra(FloatWindowService.ACTION_EXIT, 1);
+                                    startService(intent1);
+
                                     Intent intent = new Intent(MainActivity.this, LiveStreamingActivity.class);
                                     intent.putExtra("rtmpurl", last_liveurl);
                                     intent.putExtra("liveid", last_liveid);

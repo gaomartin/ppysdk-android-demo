@@ -64,14 +64,7 @@
             android:layout_height="wrap_content" android:orientation="horizontal"
             android:paddingBottom="10dp"
             android:paddingTop="10dp">
-            <Button
-                android:layout_width="@dimen/button_small_icon_size"
-                android:layout_height="@dimen/button_small_icon_size"
-                android:id="@+id/button_play"
-                android:layout_marginLeft="5dp"
-                android:layout_gravity="center"
-                android:background="@drawable/play"
-                />
+
             <SeekBar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -93,7 +86,27 @@
                 android:textSize="14sp"
                 android:textColor="@color/color_255_255_255"/>
         </LinearLayout>
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            >
+            <Button
+                android:layout_width="@dimen/button_small_icon_size"
+                android:layout_height="@dimen/button_small_icon_size"
+                android:id="@+id/button_play"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="center"
+                android:background="@drawable/play"
+                />
+            <Button
+                android:layout_width="@dimen/button_small_icon_size"
+                android:layout_height="@dimen/button_small_icon_size"
+                android:id="@+id/button_litter_player"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/litter_player"
+                />
+        </LinearLayout>
 
     </LinearLayout>
 
