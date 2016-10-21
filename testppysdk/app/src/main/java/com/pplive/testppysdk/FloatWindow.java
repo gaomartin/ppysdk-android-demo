@@ -46,35 +46,11 @@ public class FloatWindow {
         mAppContext = mHostService.getApplication();
     }
 
-    /**
-     * 判断是否开启浮窗权限,api未公开，使用反射调用
-     * @return
-     */
-    private static boolean hasAuthorFloatWin(Context context) {
 
-        if (android.os.Build.VERSION.SDK_INT < 19) {
-            return false;
-        }
-        try {
-            AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-            Class c = appOps.getClass();
-            Class[] cArg = new Class[3];
-            cArg[0] = int.class;
-            cArg[1] = int.class;
-            cArg[2] = String.class;
-            Method lMethod = c.getDeclaredMethod("checkOp", cArg);
-            //24是浮窗权限的标记
-            return (AppOpsManager.MODE_ALLOWED == (Integer) lMethod.invoke(appOps, 24, Binder.getCallingUid(), context.getPackageName()));
-
-        }catch(Exception e){
-            return false;
-        }
-    }
-    private boolean mIsClick = true;
     public void createFloatView() {
 
-        boolean check = hasAuthorFloatWin(mAppContext);
-
+        boolean check = ConstInfo.hasPermissionFloatWin(mAppContext);
+        Log.d(ConstInfo.TAG, "hasAuthorFloatWin check="+check);
         wmParams = new WindowManager.LayoutParams();
         mWindowManager = (WindowManager) mAppContext.getSystemService(mAppContext.WINDOW_SERVICE);
         wmParams.type = check?WindowManager.LayoutParams.TYPE_PHONE:WindowManager.LayoutParams.TYPE_TOAST;
@@ -167,6 +143,7 @@ public class FloatWindow {
         });
         registerBaseBoradcastReceiver(true);
     }
+
     public void registerBaseBoradcastReceiver(boolean isregister) {
         if (isregister) {
             IntentFilter myIntentFilter = new IntentFilter();

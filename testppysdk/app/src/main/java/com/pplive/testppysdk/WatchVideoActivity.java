@@ -26,6 +26,7 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -104,14 +105,23 @@ public class WatchVideoActivity extends BaseActivity{
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(WatchVideoActivity.this, FloatWindowService.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("m3u8Url", getCurrentUrl());
-                bundle.putInt(FloatWindowService.PLAY_TYPE, 0); // 1: live, 0: vod
-                intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
-                startService(intent);
+                boolean check = ConstInfo.hasPermissionFloatWin(getApplicationContext());
+                if (!check)
+                {
+                    Toast.makeText(getApplication(), "悬浮窗权限未打开，请去打开应用悬浮窗权限", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Intent intent = new Intent(WatchVideoActivity.this, FloatWindowService.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("m3u8Url", getCurrentUrl());
+                    bundle.putInt(FloatWindowService.PLAY_TYPE, 0); // 1: live, 0: vod
+                    intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
+                    startService(intent);
 
-                finish();
+                    finish();
+                }
+
             }
         });
 

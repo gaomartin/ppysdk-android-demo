@@ -2,14 +2,17 @@ package com.pplive.testppysdk;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Binder;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -32,6 +35,7 @@ import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 /**
@@ -583,4 +587,31 @@ public class ConstInfo {
             });
         }
     }
+
+    /**
+     * 判断是否开启浮窗权限,api未公开，使用反射调用
+     * @return
+     */
+    public static boolean hasPermissionFloatWin(Context context) {
+
+        Log.d(ConstInfo.TAG, "hasAuthorFloatWin android.os.Build.VERSION.SDK_INT="+android.os.Build.VERSION.SDK_INT);
+        if (android.os.Build.VERSION.SDK_INT < 19) {
+            return true;
+        }
+        try {
+            AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            Class c = appOps.getClass();
+            Class[] cArg = new Class[3];
+            cArg[0] = int.class;
+            cArg[1] = int.class;
+            cArg[2] = String.class;
+            Method lMethod = c.getDeclaredMethod("checkOp", cArg);
+            //24是浮窗权限的标记
+            return (AppOpsManager.MODE_ALLOWED == (Integer) lMethod.invoke(appOps, 24, Binder.getCallingUid(), context.getPackageName()));
+
+        }catch(Exception e){
+            return false;
+        }
+    }
+
 }

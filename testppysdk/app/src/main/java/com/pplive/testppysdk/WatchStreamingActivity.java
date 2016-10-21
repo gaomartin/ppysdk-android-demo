@@ -137,14 +137,23 @@ public class WatchStreamingActivity extends BaseActivity{
         button_litter_player.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(WatchStreamingActivity.this, FloatWindowService.class);
-                Bundle bundle = new Bundle();
-                bundle.putBundle("liveurl", mBundleParam);
-                bundle.putString("liveid", mLiveId);
-                bundle.putInt(FloatWindowService.PLAY_TYPE, 1); // 1: live, 0: vod
-                intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
-                startService(intent);
-                finish();
+
+                boolean check = ConstInfo.hasPermissionFloatWin(getApplicationContext());
+                if (!check)
+                {
+                    Toast.makeText(getApplication(), "悬浮窗权限未打开，请去打开应用悬浮窗权限", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Intent intent = new Intent(WatchStreamingActivity.this, FloatWindowService.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putBundle("liveurl", mBundleParam);
+                    bundle.putString("liveid", mLiveId);
+                    bundle.putInt(FloatWindowService.PLAY_TYPE, 1); // 1: live, 0: vod
+                    intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
+                    startService(intent);
+                    finish();
+                }
             }
         });
 
