@@ -5,11 +5,20 @@
     android:background="@color/color_7FFFFFFF"
     android:fitsSystemWindows="true">
 
-    <com.pplive.ppysdk.PPYSurfaceView
-        android:id="@+id/lsq_cameraView"
+    <com.pplive.testppysdk.AspectFrameLayout
+        android:id="@+id/cameraPreview_afl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-    </com.pplive.ppysdk.PPYSurfaceView>
+        android:layout_height="match_parent">
+
+        <com.pplive.ppysdk.PPYGLSurfaceView
+            android:id="@+id/lsq_cameraView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </com.pplive.ppysdk.PPYGLSurfaceView>
+
+    </com.pplive.testppysdk.AspectFrameLayout>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -88,7 +97,7 @@
                 android:layout_height="@dimen/button_icon_size"
                 android:scaleType="center"
                 android:layout_marginLeft="10dp"
-                android:background="@drawable/beatuy_close" />
+                android:background="@drawable/beatuy_open" />
             <Button
                 android:id="@+id/upButton"
                 android:layout_width="@dimen/button_icon_size"
@@ -98,12 +107,181 @@
                 android:background="@drawable/up" />
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/beauty_control_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="horizontal"
+                android:background="@color/color_CCFFFFFF">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/beauty"/>
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="match_parent"
+                   android:layout_weight="1"
+                   android:textSize="23sp"
+                   android:gravity="center_vertical"
+                   android:textColor="@color/color_BF000000"
+                   android:text="美颜"/>
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:button="@drawable/button_beauty_bg"
+                    android:background="@null"
+                    android:checked="false"
+                    android:id="@+id/checkbox_beauty"
+                    android:layout_marginRight="10dp"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/color_CCC5C5C5"></LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical"
+                android:background="@color/color_CCF5F5F5">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    >
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/beauty_white"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/color_BF000000"
+                        android:text="美白"/>
+                    <SeekBar
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/seekbar_beauty_white"
+                        android:layout_gravity="center"
+                        android:progressDrawable="@drawable/beauty_white_progressbar_bg"
+                        android:thumb="@drawable/beauty_white_thumb_bg"
+                        android:maxHeight="2dp"
+                        android:minHeight="2dp"
+                        android:progress="50"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"
+                        android:id="@+id/textview_beauty_white"
+                        android:textColor="@color/color_BF000000"
+                        android:layout_marginRight="10dp"
+                        android:text="50%"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    >
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/beauty_bright"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/color_BF000000"
+                        android:text="亮度"/>
+                    <SeekBar
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/seekbar_beauty_bright"
+                        android:layout_gravity="center"
+                        android:progressDrawable="@drawable/beauty_bright_progressbar_bg"
+                        android:thumb="@drawable/beauty_bright_thumb_bg"
+                        android:maxHeight="2dp"
+                        android:minHeight="2dp"
+                        android:progress="50"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"
+                        android:id="@+id/textview_beauty_bright"
+                        android:textColor="@color/color_BF000000"
+                        android:layout_marginRight="10dp"
+                        android:text="50%"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    >
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/beauty_tone"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/color_BF000000"
+                        android:text="色调"/>
+                    <SeekBar
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/seekbar_beauty_tone"
+                        android:layout_gravity="center"
+                        android:progressDrawable="@drawable/beauty_tone_progressbar_bg"
+                        android:thumb="@drawable/beauty_tone_thumb_bg"
+                        android:maxHeight="2dp"
+                        android:minHeight="2dp"
+                        android:progress="50"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"
+                        android:id="@+id/textview_beauty_tone"
+                        android:textColor="@color/color_BF000000"
+                        android:layout_marginRight="10dp"
+                        android:text="50%"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
             android:id="@+id/control_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/color_CCF5F5F5"
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
+            android:visibility="gone"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -197,7 +375,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_weight="1"
-                android:visibility="gone"
                 android:gravity="center_horizontal">
                 <Button
                     android:layout_width="@dimen/button_icon_size"
@@ -209,7 +386,7 @@
                     android:textAlignment="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="镜像"
+                    android:text="前置镜像"
                     android:textSize="16sp"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"

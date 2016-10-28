@@ -30,18 +30,21 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pplive.ppysdk.PPYGLSurfaceView;
 import com.pplive.ppysdk.PPYStatusListener;
 import com.pplive.ppysdk.PPYStream;
 import com.pplive.ppysdk.PPYStreamerConfig;
-import com.pplive.ppysdk.PPYSurfaceView;
 import com.pplive.ppysdk.VIDEO_RESOLUTION_TYPE;
 
 import java.util.Timer;
@@ -100,7 +103,7 @@ public class LiveStreamingActivity extends BaseActivity {
 
     private Boolean mShowDataTip = true;
 
-    private Boolean mFrontCameraMirror = false;
+    private Boolean mFrontCameraMirror = true;
 
     private TextView mMsgTextview;
     private boolean mIsPlayEnd = false;
@@ -119,7 +122,7 @@ public class LiveStreamingActivity extends BaseActivity {
 
     String mLiveId;
     String mRtmpUrl;
-    PPYSurfaceView mCameraView;
+    PPYGLSurfaceView mCameraView;
     boolean mIsStreamingStart = false;
     boolean mIsStartTipNetwork = false;
     boolean mIsInBackground = false;
@@ -177,6 +180,8 @@ public class LiveStreamingActivity extends BaseActivity {
         });
     }
     ScreenWake mScreenWake = null;
+    AspectFrameLayout mAspectFrameLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -192,7 +197,8 @@ public class LiveStreamingActivity extends BaseActivity {
         mLiveId = getIntent().getStringExtra("liveid");
         mRtmpUrl = getIntent().getStringExtra("rtmpurl");
         mType = getIntent().getIntExtra("type", 0);
-        mCameraView = (PPYSurfaceView)findViewById(R.id.lsq_cameraView);
+        mCameraView = (PPYGLSurfaceView)findViewById(R.id.lsq_cameraView);
+        mAspectFrameLayout = (AspectFrameLayout) findViewById(R.id.cameraPreview_afl);
 
         AppSettingMode.setSetting(this, "last_liveid", mLiveId);
         AppSettingMode.setSetting(this, "last_liveurl", mRtmpUrl);
@@ -344,7 +350,7 @@ public class LiveStreamingActivity extends BaseActivity {
     final long MAX_LIVE_TIME = 10*1000;
     PPYStatusListener mPPStatusListener = new PPYStatusListener() {
         @Override
-        public void onStateChanged(final int i, Object o) {
+        public void onStateChanged(final int i, final Object o) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -365,6 +371,12 @@ public class LiveStreamingActivity extends BaseActivity {
                             mLastStopTime = 0;
                             checkNetwork();
                         }
+                    }
+                    else if (i == PPY_STREAM_PREVIEW_SIZE_CHANGE)
+                    {
+                        float ratio = (float)o;
+                        Log.d(ConstInfo.TAG, "onStateChanged PPY_STREAM_PREVIEW_SIZE_CHANGE ratio="+ratio);
+                        mAspectFrameLayout.setAspectRatio(ratio);
                     }
                     else if (i == PPY_STREAM_STOP_EXPECTION)
                     {
@@ -623,6 +635,11 @@ public class LiveStreamingActivity extends BaseActivity {
     //--------------------------------------------------  界面处理 ------------------------------------------------
 
     boolean mIsShowControlPanel = false;
+    LinearLayout beauty_control_container;
+    LinearLayout up_control_container;
+    float mBeautyWhite = 0.5f;
+    float mBeautyBright = 0.5f;
+    float mBeautyTone = 0.5f;
     private void initView()
     {
         mMsgTextview = (TextView)findViewById(R.id.msg_live);
@@ -649,20 +666,96 @@ public class LiveStreamingActivity extends BaseActivity {
         mToggleMirrorButton = (Button)findViewById(R.id.button_mirror);
         mToggleMirrorButton.setOnClickListener(mButtonClickListener);
 
-        final LinearLayout control_container = (LinearLayout)findViewById(R.id.control_container);
-        control_container.setVisibility(mIsShowControlPanel?View.VISIBLE:View.GONE);
+
+        CheckBox checkbox_beauty = (CheckBox)findViewById(R.id.checkbox_beauty);
+        checkbox_beauty.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                PPYStream.getInstance().EnableBeauty(b);
+                if (b)
+                    PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+            }
+        });
+        beauty_control_container = (LinearLayout)findViewById(R.id.beauty_control_container);
+        beauty_control_container.setVisibility(mBeautyEnabled?View.VISIBLE:View.GONE);
+
+        up_control_container = (LinearLayout)findViewById(R.id.control_container);
+        up_control_container.setVisibility(mIsShowControlPanel?View.VISIBLE:View.GONE);
         Button upButton = (Button)findViewById(R.id.upButton);
         upButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mIsShowControlPanel = !mIsShowControlPanel;
-                control_container.setVisibility(mIsShowControlPanel?View.VISIBLE:View.GONE);
+                up_control_container.setVisibility(mIsShowControlPanel?View.VISIBLE:View.GONE);
+                mBeautyEnabled = false;
+                beauty_control_container.setVisibility(View.GONE);
             }
         });
 
+        final TextView textview_beauty_white = (TextView)findViewById(R.id.textview_beauty_white);
+        SeekBar seekbar_beauty_white = (SeekBar)findViewById(R.id.seekbar_beauty_white);
+        seekbar_beauty_white.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                textview_beauty_white.setText(seekBar.getProgress()+"%");
+                mBeautyWhite = seekBar.getProgress()/100.0f;
+                PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        final TextView textview_beauty_bright = (TextView)findViewById(R.id.textview_beauty_bright);
+        SeekBar seekbar_beauty_bright = (SeekBar)findViewById(R.id.seekbar_beauty_bright);
+        seekbar_beauty_bright.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                textview_beauty_bright.setText(seekBar.getProgress()+"%");
+                mBeautyBright = seekBar.getProgress()/100.0f;
+                PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        final TextView textview_beauty_tone = (TextView)findViewById(R.id.textview_beauty_tone);
+        SeekBar seekbar_beauty_tone = (SeekBar)findViewById(R.id.seekbar_beauty_tone);
+        seekbar_beauty_tone.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                textview_beauty_tone.setText(seekBar.getProgress()+"%");
+                mBeautyTone = seekBar.getProgress()/100.0f;
+                PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         updateMuteButtonStatus();
 
-        updateBeautyButtonStatus();
+//        updateBeautyButtonStatus();
 
         updateFlashButtonStatus();
     }
@@ -694,9 +787,10 @@ public class LiveStreamingActivity extends BaseActivity {
             {
                 mBeautyEnabled = !mBeautyEnabled;
 
-                PPYStream.getInstance().EnableBeauty(mBeautyEnabled);
-
-                updateBeautyButtonStatus();
+                beauty_control_container.setVisibility(mBeautyEnabled?View.VISIBLE:View.GONE);
+                mIsShowControlPanel = false;
+                up_control_container.setVisibility(View.GONE);
+                //updateBeautyButtonStatus();
             }
             else if (v == mFlashButton)
             {
@@ -724,7 +818,7 @@ public class LiveStreamingActivity extends BaseActivity {
             else if (v == mToggleMirrorButton)
             {
                 mFrontCameraMirror = !mFrontCameraMirror;
-                //PPYStream.getInstance().EnableFrontCameraMirror(mFrontCameraMirror);
+                PPYStream.getInstance().EnableFrontCameraMirror(mFrontCameraMirror);
             }
         }
     };
@@ -774,13 +868,13 @@ public class LiveStreamingActivity extends BaseActivity {
 //        PPYStream.getInstance().EnableBeauty(mBeautyEnabled);
 //    }
 
-    private void updateBeautyButtonStatus()
-    {
-        int imgID = mBeautyEnabled ? R.drawable.beatuy_open : R.drawable.beatuy_close;
-
-        if (mBeautyButton != null)
-            mBeautyButton.setBackgroundResource(imgID);
-    }
+//    private void updateBeautyButtonStatus()
+//    {
+//        int imgID = mBeautyEnabled ? R.drawable.beatuy_open : R.drawable.beatuy_close;
+//
+//        if (mBeautyButton != null)
+//            mBeautyButton.setBackgroundResource(imgID);
+//    }
 
     /**
      * 更新操作按钮
