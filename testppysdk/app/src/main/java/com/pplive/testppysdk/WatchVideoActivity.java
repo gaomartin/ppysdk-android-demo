@@ -9,8 +9,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.slkmedia.mediaplayer.VideoView;
-import android.slkmedia.mediaplayer.VideoViewListener;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -28,10 +26,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pplive.ppysdk.PPYVideoView;
+import com.pplive.ppysdk.PPYVideoViewListener;
+
 import java.util.ArrayList;
 
 public class WatchVideoActivity extends BaseActivity{
-    VideoView mVideoView;
+    PPYVideoView mVideoView;
 
     Handler mHandler = new Handler();
 
@@ -182,10 +183,10 @@ public class WatchVideoActivity extends BaseActivity{
             }
         });
 
-        mVideoView = (VideoView)findViewById(R.id.live_player_videoview);
+        mVideoView = (PPYVideoView)findViewById(R.id.live_player_videoview);
         mVideoView.initialize();
 
-        mVideoView.setListener(new VideoViewListener() {
+        mVideoView.setListener(new PPYVideoViewListener() {
             @Override
             public void onPrepared() {
                 Log.d(ConstInfo.TAG, "play onPrepared");
@@ -214,10 +215,10 @@ public class WatchVideoActivity extends BaseActivity{
             @Override
             public void onError(int i, int i1) {
                 hideLoading();
-                if(i == VideoView.ERROR_DEMUXER_READ_FAIL)
+                if(i == PPYVideoView.ERROR_DEMUXER_READ_FAIL)
                 {
                     Log.d(ConstInfo.TAG, "fail to read data from network");
-                }else if(i == VideoView.ERROR_DEMUXER_PREPARE_FAIL)
+                }else if(i == PPYVideoView.ERROR_DEMUXER_PREPARE_FAIL)
                 {
                     Log.d(ConstInfo.TAG, "fail to connect to media server");
                 }else{
@@ -231,7 +232,7 @@ public class WatchVideoActivity extends BaseActivity{
             @Override
             public void onInfo(int what, int extra) {
                 //Log.d(ConstInfo.TAG, "setOnInfoListener: what="+what+" extra="+extra);
-                if(what == VideoView.INFO_BUFFERING_START)
+                if(what == PPYVideoView.INFO_BUFFERING_START)
                 {
                     Log.d(ConstInfo.TAG, "onInfo buffering start");
                     runOnUiThread(new Runnable() {
@@ -243,7 +244,7 @@ public class WatchVideoActivity extends BaseActivity{
                     });
                 }
 
-                if(what == VideoView.INFO_BUFFERING_END)
+                if(what == PPYVideoView.INFO_BUFFERING_END)
                 {
                     Log.d(ConstInfo.TAG, "onInfo buffering end");
                     runOnUiThread(new Runnable() {
@@ -255,7 +256,7 @@ public class WatchVideoActivity extends BaseActivity{
                     });
                 }
 
-                if(what == VideoView.INFO_VIDEO_RENDERING_START)
+                if(what == PPYVideoView.INFO_VIDEO_RENDERING_START)
                 {
                     Log.d(ConstInfo.TAG, "onInfo video rendering start");
                 }
@@ -278,17 +279,17 @@ public class WatchVideoActivity extends BaseActivity{
 //                    mVideoDelay = extra;
 //                }
 
-                if(what == VideoView.INFO_CONNECTED_SERVER)
+                if(what == PPYVideoView.INFO_CONNECTED_SERVER)
                 {
                     Log.d(ConstInfo.TAG, "connected to media server");
                 }
 
-                if(what == VideoView.INFO_DOWNLOAD_STARTED)
+                if(what == PPYVideoView.INFO_DOWNLOAD_STARTED)
                 {
                     Log.d(ConstInfo.TAG, "start download media data");
                 }
 
-                if(what == VideoView.INFO_GOT_FIRST_KEY_FRAME)
+                if(what == PPYVideoView.INFO_GOT_FIRST_KEY_FRAME)
                 {
                     Log.d(ConstInfo.TAG, "got first key frame");
                 }
@@ -491,7 +492,7 @@ public class WatchVideoActivity extends BaseActivity{
             @Override
             public void run() {
                 Log.d(ConstInfo.TAG, "play url: "+ getCurrentUrl());
-                mVideoView.setDataSource(getCurrentUrl(), VideoView.VOD_HIGH_CACHE);
+                mVideoView.setDataSource(getCurrentUrl(), PPYVideoView.VOD_HIGH_CACHE);
                 mVideoView.prepareAsync();
             }
         }).start();

@@ -5,18 +5,12 @@
     android:background="@color/color_7FFFFFFF"
     android:fitsSystemWindows="true">
 
-    <com.pplive.testppysdk.AspectFrameLayout
-        android:id="@+id/cameraPreview_afl"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <com.pplive.ppysdk.PPYGLSurfaceView
+        <com.pplive.ppysdk.PPYLiveView
             android:id="@+id/lsq_cameraView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
-        </com.pplive.ppysdk.PPYGLSurfaceView>
-
-    </com.pplive.testppysdk.AspectFrameLayout>
+        </com.pplive.ppysdk.PPYLiveView>
 
 
 

@@ -12,8 +12,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.slkmedia.mediaplayer.VideoView;
-import android.slkmedia.mediaplayer.VideoViewListener;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,6 +23,9 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import com.pplive.ppysdk.PPYVideoView;
+import com.pplive.ppysdk.PPYVideoViewListener;
+
 import java.lang.reflect.Method;
 
 /**
@@ -35,7 +36,7 @@ public class FloatWindow {
     private RelativeLayout mFloatLayout;
     private WindowManager.LayoutParams wmParams;
     private WindowManager mWindowManager;
-    private VideoView mVideoView;
+    private PPYVideoView mVideoView;
     private Service mHostService;
     private Context mAppContext;
     private Bundle mBundleParam;
@@ -111,7 +112,7 @@ public class FloatWindow {
             }
         });
 
-        mVideoView = (VideoView)mFloatLayout.findViewById(R.id.live_player_videoview);
+        mVideoView = (PPYVideoView)mFloatLayout.findViewById(R.id.live_player_videoview);
         mVideoView.initialize();
         mVideoView.setListener(mVideoListener);
 
@@ -179,7 +180,7 @@ public class FloatWindow {
         }
     };
 
-    private VideoViewListener mVideoListener = new VideoViewListener() {
+    private PPYVideoViewListener mVideoListener = new PPYVideoViewListener() {
         @Override
         public void onPrepared() {
             Log.d(ConstInfo.TAG, "onPrepared");
@@ -290,7 +291,7 @@ public class FloatWindow {
             @Override
             public void run() {
                 Log.d(ConstInfo.TAG, "play url: "+ getCurrentUrl());
-                mVideoView.setDataSource(getCurrentUrl(), (mType==1)?VideoView.LIVE_LOW_DELAY:VideoView.VOD_HIGH_CACHE);
+                mVideoView.setDataSource(getCurrentUrl(), (mType==1)?PPYVideoView.LIVE_LOW_DELAY:PPYVideoView.VOD_HIGH_CACHE);
                 mVideoView.prepareAsync();
             }
         }).start();

@@ -41,7 +41,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.pplive.ppysdk.PPYGLSurfaceView;
+import com.pplive.ppysdk.PPYLiveView;
 import com.pplive.ppysdk.PPYStatusListener;
 import com.pplive.ppysdk.PPYStream;
 import com.pplive.ppysdk.PPYStreamerConfig;
@@ -122,7 +122,7 @@ public class LiveStreamingActivity extends BaseActivity {
 
     String mLiveId;
     String mRtmpUrl;
-    PPYGLSurfaceView mCameraView;
+    PPYLiveView mCameraView;
     boolean mIsStreamingStart = false;
     boolean mIsStartTipNetwork = false;
     boolean mIsInBackground = false;
@@ -180,7 +180,7 @@ public class LiveStreamingActivity extends BaseActivity {
         });
     }
     ScreenWake mScreenWake = null;
-    AspectFrameLayout mAspectFrameLayout;
+    //AspectFrameLayout mAspectFrameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,8 +197,7 @@ public class LiveStreamingActivity extends BaseActivity {
         mLiveId = getIntent().getStringExtra("liveid");
         mRtmpUrl = getIntent().getStringExtra("rtmpurl");
         mType = getIntent().getIntExtra("type", 0);
-        mCameraView = (PPYGLSurfaceView)findViewById(R.id.lsq_cameraView);
-        mAspectFrameLayout = (AspectFrameLayout) findViewById(R.id.cameraPreview_afl);
+        mCameraView = (PPYLiveView)findViewById(R.id.lsq_cameraView);
 
         AppSettingMode.setSetting(this, "last_liveid", mLiveId);
         AppSettingMode.setSetting(this, "last_liveurl", mRtmpUrl);
@@ -371,12 +370,6 @@ public class LiveStreamingActivity extends BaseActivity {
                             mLastStopTime = 0;
                             checkNetwork();
                         }
-                    }
-                    else if (i == PPY_STREAM_PREVIEW_SIZE_CHANGE)
-                    {
-                        float ratio = (float)o;
-                        Log.d(ConstInfo.TAG, "onStateChanged PPY_STREAM_PREVIEW_SIZE_CHANGE ratio="+ratio);
-                        mAspectFrameLayout.setAspectRatio(ratio);
                     }
                     else if (i == PPY_STREAM_STOP_EXPECTION)
                     {

@@ -15,8 +15,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 
-import android.slkmedia.mediaplayer.VideoView;
-import android.slkmedia.mediaplayer.VideoViewListener;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -36,18 +34,21 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pplive.ppysdk.PPYStream;
+import com.pplive.ppysdk.PPYVideoView;
+import com.pplive.ppysdk.PPYVideoViewListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WatchStreamingActivity extends BaseActivity{
-    VideoView mVideoView;
+    PPYVideoView mVideoView;
 
     Handler mHandler = new Handler();
     String mRtmpUrl; // rtmp
@@ -103,6 +104,8 @@ public class WatchStreamingActivity extends BaseActivity{
     private boolean mIsShowReconnect = true;
     private long mLastBufferTime = 0;
     private static final long MAX_BUFFER_TIME = 10*1000;
+    private boolean mIsShowPlayType = false;
+    private TextView textview_play_type;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,9 +125,9 @@ public class WatchStreamingActivity extends BaseActivity{
         mHdlUrl = mBundleParam.getString("hdlUrl");
         mM3u8Url = mBundleParam.getString("m3u8Url");
         mChannelWebId = mBundleParam.getString("channelWebId");
-
+        mUrlType = PlayType.RTMP;
         if (TextUtils.isEmpty(mRtmpUrl) || TextUtils.isEmpty(mHdlUrl))
-            mUrlType = PlayType.M3U8;
+            mUrlType = PlayType.HLS;
 
         mRtmpPlayMode = PlayMode.GAOQING;
 
@@ -170,12 +173,35 @@ public class WatchStreamingActivity extends BaseActivity{
 
         final LinearLayout rtmp_play_mode_control_container = (LinearLayout)findViewById(R.id.rtmp_play_mode_control_container);
         final TextView textview_rtmp_play_mode = (TextView) findViewById(R.id.textview_rtmp_play_mode);
-        final TextView textview_play_type = (TextView) findViewById(R.id.textview_play_type);
+        textview_play_type = (TextView) findViewById(R.id.textview_play_type);
+        final LinearLayout play_type_control_container = (LinearLayout)findViewById(R.id.play_type_control_container);
+        play_type_control_container.setVisibility(mIsShowPlayType?View.VISIBLE:View.GONE);
         if (TextUtils.isEmpty(mHdlUrl) || TextUtils.isEmpty(mRtmpUrl))
             textview_play_type.setVisibility(View.GONE);
         else
             textview_play_type.setVisibility(View.VISIBLE);
 
+        final RadioButton RADIO_BUTTON_RTMP = (RadioButton)findViewById(R.id.RADIO_BUTTON_RTMP);
+        RADIO_BUTTON_RTMP.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchPlayType(PlayType.RTMP);
+            }
+        });
+        final RadioButton RADIO_BUTTON_FLV = (RadioButton)findViewById(R.id.RADIO_BUTTON_FLV);
+        RADIO_BUTTON_FLV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchPlayType(PlayType.FLV);
+            }
+        });
+        final RadioButton RADIO_BUTTON_HLS = (RadioButton)findViewById(R.id.RADIO_BUTTON_HLS);
+        RADIO_BUTTON_HLS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchPlayType(PlayType.HLS);
+            }
+        });
 //        if (mUrlType == PlayType.RTMP && mRtmpUrlList != null && !mRtmpUrlList.isEmpty())
 //        {
 //            textview_rtmp_play_mode.setText("高清");
@@ -188,30 +214,15 @@ public class WatchStreamingActivity extends BaseActivity{
             @Override
             public void onClick(View view) {
                 if (mUrlType == PlayType.RTMP)
-                    mUrlType = PlayType.FLV;
-                else
-                    mUrlType = PlayType.RTMP;
+                    RADIO_BUTTON_RTMP.setChecked(true);
+                else if (mUrlType == PlayType.FLV)
+                    RADIO_BUTTON_FLV.setChecked(true);
+                else if (mUrlType == PlayType.HLS)
+                    RADIO_BUTTON_HLS.setChecked(true);
 
-                textview_play_type.setText(mUrlType.toString());
-//                button_url_type.setBackgroundResource((mUrlType == PlayType.RTMP)?R.drawable.rtmp:R.drawable.flv);
+                mIsShowPlayType = !mIsShowPlayType;
+                play_type_control_container.setVisibility(mIsShowPlayType?View.VISIBLE:View.GONE);
 
-                if (mUrlType == PlayType.RTMP && mRtmpUrlList != null && !mRtmpUrlList.isEmpty())
-                {
-                    mRtmpPlayMode = PlayMode.GAOQING;
-                    //textview_rtmp_play_mode.setText(mRtmpPlayMode.toString());
-                    //textview_rtmp_play_mode.setVisibility(View.VISIBLE);
-                }
-                else
-                {
-                    textview_rtmp_play_mode.setVisibility(View.GONE);
-                    //rtmp_play_mode_control_container.setVisibility(View.GONE);
-                }
-
-                if (mIsPlayEnd)
-                    return;
-                Log.d(ConstInfo.TAG, "reconnect play");
-                stop_play();
-                start_play();
             }
         });
 
@@ -221,6 +232,8 @@ public class WatchStreamingActivity extends BaseActivity{
                 rtmp_play_mode_control_container.setVisibility(rtmp_play_mode_control_container.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);
             }
         });
+
+
 
         final RadioGroup radio_group_container = (RadioGroup)findViewById(R.id.radio_group_container);
         radio_group_container.setOnClickListener(new View.OnClickListener() {
@@ -246,9 +259,9 @@ public class WatchStreamingActivity extends BaseActivity{
             }
         });
 
-        mVideoView = (VideoView)findViewById(R.id.live_player_videoview);
+        mVideoView = (PPYVideoView)findViewById(R.id.live_player_videoview);
         mVideoView.initialize();
-        mVideoView.setListener(new VideoViewListener() {
+        mVideoView.setListener(new PPYVideoViewListener() {
             @Override
             public void onPrepared() {
                 Log.d(ConstInfo.TAG, "play onPrepared");
@@ -271,10 +284,10 @@ public class WatchStreamingActivity extends BaseActivity{
             @Override
             public void onError(int i, int i1) {
                 hideLoading();
-                if(i == VideoView.ERROR_DEMUXER_READ_FAIL)
+                if(i == PPYVideoView.ERROR_DEMUXER_READ_FAIL)
                 {
                     Log.d(ConstInfo.TAG, "fail to read data from network");
-                }else if(i == VideoView.ERROR_DEMUXER_PREPARE_FAIL)
+                }else if(i == PPYVideoView.ERROR_DEMUXER_PREPARE_FAIL)
                 {
                     Log.d(ConstInfo.TAG, "fail to connect to media server");
                 }else{
@@ -288,7 +301,7 @@ public class WatchStreamingActivity extends BaseActivity{
             @Override
             public void onInfo(int what, int extra) {
                 //Log.d(ConstInfo.TAG, "setOnInfoListener: what="+what+" extra="+extra);
-                if(what == VideoView.INFO_BUFFERING_START)
+                if(what == PPYVideoView.INFO_BUFFERING_START)
                 {
                     Log.d(ConstInfo.TAG, "onInfo buffering start");
                     runOnUiThread(new Runnable() {
@@ -300,7 +313,7 @@ public class WatchStreamingActivity extends BaseActivity{
                     });
                 }
 
-                if(what == VideoView.INFO_BUFFERING_END)
+                if(what == PPYVideoView.INFO_BUFFERING_END)
                 {
                     Log.d(ConstInfo.TAG, "onInfo buffering end");
                     runOnUiThread(new Runnable() {
@@ -313,40 +326,40 @@ public class WatchStreamingActivity extends BaseActivity{
                     });
                 }
 
-                if(what == VideoView.INFO_VIDEO_RENDERING_START)
+                if(what == PPYVideoView.INFO_VIDEO_RENDERING_START)
                 {
                     Log.d(ConstInfo.TAG, "onInfo video rendering start");
                 }
 
-                if(what == VideoView.INFO_REAL_BITRATE)
+                if(what == PPYVideoView.INFO_REAL_BITRATE)
                 {
                     //Log.d(ConstInfo.TAG, "onInfo real bitrate : "+String.valueOf(extra));
                     mVideoBitrate = extra;
                 }
 
-                if(what == VideoView.INFO_REAL_FPS)
+                if(what == PPYVideoView.INFO_REAL_FPS)
                 {
                     //Log.d(ConstInfo.TAG, "onInfo real fps : "+String.valueOf(extra));
                     mVideoFPS = extra;
                 }
 
-                if(what == VideoView.INFO_REAL_BUFFER_DURATION)
+                if(what == PPYVideoView.INFO_REAL_BUFFER_DURATION)
                 {
                     // Log.d(ConstInfo.TAG, "onInfo real buffer duration : "+String.valueOf(extra));
                     mVideoDelay = extra;
                 }
 
-                if(what == VideoView.INFO_CONNECTED_SERVER)
+                if(what == PPYVideoView.INFO_CONNECTED_SERVER)
                 {
                     Log.d(ConstInfo.TAG, "connected to media server");
                 }
 
-                if(what == VideoView.INFO_DOWNLOAD_STARTED)
+                if(what == PPYVideoView.INFO_DOWNLOAD_STARTED)
                 {
                     Log.d(ConstInfo.TAG, "start download media data");
                 }
 
-                if(what == VideoView.INFO_GOT_FIRST_KEY_FRAME)
+                if(what == PPYVideoView.INFO_GOT_FIRST_KEY_FRAME)
                 {
                     Log.d(ConstInfo.TAG, "got first key frame");
                 }
@@ -396,6 +409,37 @@ public class WatchStreamingActivity extends BaseActivity{
         registerBaseBoradcastReceiver(true);
     }
 
+    private void switchPlayMode(PlayMode urlmode)
+    {
+
+    }
+    private void switchPlayType(PlayType urltype)
+    {
+        if (mUrlType == urltype)
+            return;
+        mUrlType = urltype;
+
+        textview_play_type.setText(mUrlType.toString());
+//                button_url_type.setBackgroundResource((mUrlType == PlayType.RTMP)?R.drawable.rtmp:R.drawable.flv);
+
+        if (mUrlType == PlayType.RTMP && mRtmpUrlList != null && !mRtmpUrlList.isEmpty())
+        {
+            mRtmpPlayMode = PlayMode.GAOQING;
+            //textview_rtmp_play_mode.setText(mRtmpPlayMode.toString());
+            //textview_rtmp_play_mode.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            //textview_rtmp_play_mode.setVisibility(View.GONE);
+            //rtmp_play_mode_control_container.setVisibility(View.GONE);
+        }
+
+        if (mIsPlayEnd)
+            return;
+        Log.d(ConstInfo.TAG, "reconnect play");
+        stop_play();
+        start_play();
+    }
     private void checkStreamStatus(final boolean need_reconnect)
     {
         if (mIsExiting)
@@ -776,7 +820,7 @@ public class WatchStreamingActivity extends BaseActivity{
             mCurrentUrl = mRtmpUrl;
         else if (mUrlType == PlayType.FLV)
             mCurrentUrl = mHdlUrl;
-        else if (mUrlType == PlayType.M3U8)
+        else if (mUrlType == PlayType.HLS)
             mCurrentUrl = mM3u8Url;
         return mCurrentUrl;
     }
@@ -796,7 +840,7 @@ public class WatchStreamingActivity extends BaseActivity{
             @Override
             public void run() {
                 Log.d(ConstInfo.TAG, "play url: "+ getCurrentUrl());
-                mVideoView.setDataSource(getCurrentUrl(), VideoView.LIVE_LOW_DELAY);
+                mVideoView.setDataSource(getCurrentUrl(), PPYVideoView.LIVE_LOW_DELAY);
                 mVideoView.prepareAsync();
             }
         }).start();

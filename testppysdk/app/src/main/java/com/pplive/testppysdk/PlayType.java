@@ -5,7 +5,7 @@ package com.pplive.testppysdk;
  */
 public enum PlayType {
 
-    UNKNOW_TYPE("UNKNOW_TYPE", 0), RTMP("RTMP", 1), FLV("FLV", 2), M3U8("M3U8", 3);
+    UNKNOW_TYPE("UNKNOW_TYPE", 0), RTMP("RTMP", 1), FLV("FLV", 2), HLS("HLS", 3);
 
     private String name;
     private int index;
@@ -27,7 +27,7 @@ public enum PlayType {
         else if (index == 2)
             return FLV;
         else if (index == 3)
-            return M3U8;
+            return HLS;
         return UNKNOW_TYPE;
     }
 }

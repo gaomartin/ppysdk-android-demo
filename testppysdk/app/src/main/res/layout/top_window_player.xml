@@ -22,7 +22,7 @@
         android:layout_centerInParent="true"
         />
 
-    <android.slkmedia.mediaplayer.VideoView
+    <com.pplive.ppysdk.PPYVideoView
         android:id="@+id/live_player_videoview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
