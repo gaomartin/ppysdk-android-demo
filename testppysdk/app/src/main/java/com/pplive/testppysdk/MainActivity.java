@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -42,10 +43,40 @@ public class MainActivity extends BaseActivity{
 
     Button start_live_streaming;
     boolean isFirst = true;
+    int mParentClickCount = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        RelativeLayout parentView = (RelativeLayout)getLayoutInflater().inflate(R.layout.activity_main, null);
+        setContentView(parentView);
+
+        final LinearLayout crash_container = (LinearLayout)findViewById(R.id.crash_container);
+        Button button_sdk_crash = (Button)findViewById(R.id.button_sdk_crash);
+        button_sdk_crash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PPYStream.getInstance().testCrashLog();
+            }
+        });
+        Button button_app_crash = (Button)findViewById(R.id.button_app_crash);
+        button_app_crash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                VideoItemInfo info = null;
+                info.setImageurl("fasd");
+            }
+        });
+        parentView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                mParentClickCount++;
+                if (mParentClickCount == 6)
+                {
+                    crash_container.setVisibility(View.VISIBLE);
+                }
+                return false;
+            }
+        });
 
 //        getWindow().setSoftInputMode( WindowManager.LayoutParams.INPUT_METHOD_NOT_NEEDED);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);

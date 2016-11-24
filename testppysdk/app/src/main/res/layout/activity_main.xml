@@ -10,6 +10,28 @@
     android:background="@drawable/bg"
     android:fitsSystemWindows="true"
     tools:context="com.pplive.testppysdk.MainActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:orientation="horizontal"
+        android:id="@+id/crash_container"
+        android:visibility="gone">
+        <Button
+            android:id="@+id/button_sdk_crash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+                android:layout_weight="1"
+            android:text="sdk crash"
+            android:textSize="@dimen/button_text_size"
+            />
+        <Button
+            android:id="@+id/button_app_crash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="app crash"
+            android:textSize="@dimen/button_text_size"
+            />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

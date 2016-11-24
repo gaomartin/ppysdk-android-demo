@@ -36,8 +36,11 @@ public class TestApplication extends Application {
     {
         super.onCreate();
 
-        PPYStream.getInstance().init(this);
+        CrashAppHandler.getInstance().init(this);
 
+        PPYStream.getInstance().init(this);
+        PPYStream.getInstance().setEnableLog(true);
+        PPYStream.getInstance().setLogClientName("ppysdk");
 
         String path = getCacheDir().getAbsolutePath() + "/log";
         File file = new File(path);
