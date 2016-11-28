@@ -39,7 +39,7 @@ PPY Streamer Android SDK是pp云推出的 Android 平台上使用的软件开发
 引入目标库, 将推流SDK中libs目录下的库文件引入到目标工程中并添加依赖。
 
 可参考下述配置方式（以Android Studio为例）：
-- 将ppy-rtmp-sdk.aar拷贝到app的libs目录下；
+- 将ppcloud-sdk.aar拷贝到app的libs目录下；
 - 修改目标工程的build.gradle文件，配置repositories路径：
 ````gradle
 
@@ -51,7 +51,7 @@ PPY Streamer Android SDK是pp云推出的 Android 平台上使用的软件开发
     
 dependencies {
     ...
-    compile(name: 'ppy-rtmp-sdk', ext: 'aar')
+    compile(name: 'ppcloud-sdk', ext: 'aar')
     ...
 }
 ````
@@ -161,6 +161,8 @@ PPYStream.getInstance().setFlashLightState(true);
 PPYStream.getInstance().IsSupportFlashlight();
 // 设置是否开启美颜
 PPYStream.getInstance().EnableBeauty(true);
+// 设置美颜的美白，亮度，色调参数(0-1.0 默认都是0.5)
+PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
 
 //推流过程中获取音视频信息
 // 获取当前视频宽高
