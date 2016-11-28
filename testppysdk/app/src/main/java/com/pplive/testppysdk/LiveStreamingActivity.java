@@ -520,13 +520,25 @@ public class LiveStreamingActivity extends BaseActivity {
         PPYStreamerConfig config = new PPYStreamerConfig();
         config.setPublishurl(mRtmpUrl);
         if (mType == 0)
+        {
             config.setVideoResolution(VIDEO_RESOLUTION_TYPE.VIDEO_RESOLUTION_480P);
+            config.setVideoBitrate(800);
+        }
         else if (mType == 1)
+        {
             config.setVideoResolution(VIDEO_RESOLUTION_TYPE.VIDEO_RESOLUTION_540P);
+            config.setVideoBitrate(1000);
+        }
         else if (mType == 2)
+        {
             config.setVideoResolution(VIDEO_RESOLUTION_TYPE.VIDEO_RESOLUTION_720P);
+            config.setVideoBitrate(1400);
+        }
         else
+        {
             config.setVideoResolution(VIDEO_RESOLUTION_TYPE.VIDEO_RESOLUTION_480P);
+            config.setVideoBitrate(800);
+        }
         config.setFrameRate(30);
         PPYStream.getInstance().CreateStream(getApplicationContext(), config, mCameraView);
 
