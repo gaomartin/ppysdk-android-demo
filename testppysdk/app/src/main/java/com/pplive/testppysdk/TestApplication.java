@@ -13,7 +13,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.pplive.ppysdk.PPYStream;
+import com.pplive.ppysdk.PPYSdk;
 
 import java.io.File;
 
@@ -38,9 +38,9 @@ public class TestApplication extends Application {
 
         CrashAppHandler.getInstance().init(this);
 
-        PPYStream.getInstance().init(this);
-        PPYStream.getInstance().setEnableLog(true);
-        PPYStream.getInstance().setLogClientName("ppysdk");
+        PPYSdk.getInstance().init(this);
+        PPYSdk.getInstance().setEnableLog(true);
+        PPYSdk.getInstance().setLogClientName("ppysdk");
 
         String path = getCacheDir().getAbsolutePath() + "/log";
         File file = new File(path);

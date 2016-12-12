@@ -61,7 +61,7 @@ dependencies {
 - 初始化SDK 
 ````java
 // 在app的application里调用初始化函数
-PPYStream.getInstance().init(this);
+PPYSdk.getInstance().init(this);
 ````
 ````java
 public class TestApplication extends Application {
@@ -71,7 +71,7 @@ public class TestApplication extends Application {
     {
         super.onCreate();
 
-        PPYStream.getInstance().init(this);
+        PPYSdk.getInstance().init(this);
     }
 }
 ````
@@ -80,15 +80,17 @@ public class TestApplication extends Application {
 
 - 在布局文件中加入预览View
 ````xml
-<com.pplive.ppysdk.PPYSurfaceView
-        android:id="@+id/lsq_cameraView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-    </com.pplive.ppysdk.PPYSurfaceView>
+<com.pplive.ppysdk.PPYLiveView
+            android:id="@+id/lsq_cameraView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </com.pplive.ppysdk.PPYLiveView>
 ````
-- PPYSurfaceView
+- PPYLiveView
 ````java
-PPYSurfaceView mCameraView = (PPYSurfaceView)findViewById(R.id.lsq_cameraView);
+PPYLiveView mCameraView;
+
+mCameraView = (PPYLiveView)findViewById(R.id.lsq_cameraView);
 ````
 
 - 创建并配置PPYStreamerConfig。
@@ -117,67 +119,69 @@ builder.setSampleAudioRateInHz(44100);
 builder.setDefaultFront(true);
 // 设置是否采用横屏模式
 builder.setDefaultLandscape(false);
-
-
 ````
+
+- 创建PPYStreame对象
+````java
+PPYStream mPPYStream = new PPYStream();
+
+mPPYStream.CreateStream(getApplicationContext(), config, mCameraView);
+
+mPPYStream.setPPYStatusListener(new PPYStatusListener() {
+                @Override
+                public void onStateChanged(int type, Object o) {
+                    if (type == PPY_SDK_INIT_SUCC)
+                        mPPYStream.StartStream();
+                }
+            });
+````
+
 - 创建推流事件监听，可以收到推流过程中的异步事件。
 
 **注意：所有回调直接运行在产生事件的各工作线程中，不要在该回调中做任何耗时的操作，或者直接调用推流API。**
 ````java
-PPYStream.getInstance().setPPYStatusListener(new PPYStatusListener() {
+mPPYStream.setPPYStatusListener(new PPYStatusListener() {
                 @Override
                 public void onStateChanged(int type, Object o) {
                     if (type == PPY_SDK_INIT_SUCC)
-                        PPYStream.getInstance().StartStream();
+                        mPPYStream.StartStream();
                 }
             });
 
-````
-- 创建PPYStreamer对象
-````java
-PPYStream.getInstance().CreateStream(getApplicationContext(), config, mCameraView);
-
-PPYStream.getInstance().setPPYStatusListener(new PPYStatusListener() {
-                @Override
-                public void onStateChanged(int type, Object o) {
-                    if (type == PPY_SDK_INIT_SUCC)
-                        PPYStream.getInstance().StartStream();
-                }
-            });
 ````
 - 开始推流  
 **注意：初次开启预览后需要在setPPYStatusListener回调中收到PPY_SDK_INIT_SUCC
 事件后调用方才有效。**
 ````java
-PPYStream.getInstance().StartStream();
+mPPYStream.StartStream();
 ````
 - 推流过程中可动态设置的常用方法
 ````java
 // 切换前后摄像头
-PPYStream.getInstance().SwitchCamera();
+mPPYStream.SwitchCamera();
 // 开关闪光灯
-PPYStream.getInstance().setFlashLightState(true);
+mPPYStream.setFlashLightState(true);
 // 是否支持打开闪光灯
-PPYStream.getInstance().IsSupportFlashlight();
+mPPYStream.IsSupportFlashlight();
 // 设置是否开启美颜
-PPYStream.getInstance().EnableBeauty(true);
+mPPYStream.EnableBeauty(true);
 // 设置美颜的美白，亮度，色调参数(0-1.0 默认都是0.5)
-PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+mPPYStream.SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
 
 //推流过程中获取音视频信息
 // 获取当前视频宽高
-PPYStream.getInstance().getVideoWdith();
-PPYStream.getInstance().getVideoHeight();
+mPPYStream.getVideoWdith();
+mPPYStream.getVideoHeight();
 // 获取当前视频码率
-PPYStream.getInstance().getVideoBitrate();
+mPPYStream.getVideoBitrate();
 // 获取当前音频码率
-PPYStream.getInstance().getAudioBitrate();
+mPPYStream.getAudioBitrate();
 // 获取当前FPS
-PPYStream.getInstance().getVideoFrameRate();
+mPPYStream.getVideoFrameRate();
 ````
 - 停止推流
 ````java
-PPYStream.getInstance().StopStream();
+mPPYStream.StopStream();
 ````
 - Activity的生命周期回调处理  
 **采集的状态依赖于Activity的生命周期，所以必须在Activity的生命周期中也调用SDK相应的接口。**
@@ -189,21 +193,22 @@ public class LiveStreamingActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        PPYStream.getInstance().OnResume();
+        mPPYStream.OnResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        PPYStream.getInstance().OnPause();
+        mPPYStream.OnPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        PPYStream.getInstance().OnDestroy();
+        mPPYStream.OnDestroy();
     }
 }
 ```
 如需测试用的推流地址，请联系我们。
+
 

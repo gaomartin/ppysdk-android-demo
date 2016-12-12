@@ -55,7 +55,7 @@ public class MainActivity extends BaseActivity{
         button_sdk_crash.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PPYStream.getInstance().testCrashLog();
+                //PPYSdk.getInstance().testCrashLog();
             }
         });
         Button button_app_crash = (Button)findViewById(R.id.button_app_crash);

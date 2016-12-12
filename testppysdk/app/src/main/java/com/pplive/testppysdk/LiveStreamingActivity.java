@@ -123,6 +123,7 @@ public class LiveStreamingActivity extends BaseActivity {
     String mLiveId;
     String mRtmpUrl;
     PPYLiveView mCameraView;
+    PPYStream mPPYStream = new PPYStream();
     boolean mIsStreamingStart = false;
     boolean mIsStartTipNetwork = false;
     boolean mIsInBackground = false;
@@ -147,12 +148,12 @@ public class LiveStreamingActivity extends BaseActivity {
     private long mLastConnectTime = 0;
     void updateTip()
     {
-        if (PPYStream.getInstance().IsStreaming())
+        if (mPPYStream.IsStreaming())
         {
-            int videobitrate = PPYStream.getInstance().getVideoBitrate();
-            int fps = PPYStream.getInstance().getVideoFrameRate();
-            int vdeio_w = PPYStream.getInstance().getVideoWdith();
-            int video_h = PPYStream.getInstance().getVideoHeight();
+            int videobitrate = mPPYStream.getVideoBitrate();
+            int fps = mPPYStream.getVideoFrameRate();
+            int vdeio_w = mPPYStream.getVideoWdith();
+            int video_h = mPPYStream.getVideoHeight();
             String str = String.format(getString(R.string.live_data_tip), videobitrate, (int)fps, vdeio_w, video_h);
             mDataTipTextview.setText(str);
 
@@ -297,8 +298,8 @@ public class LiveStreamingActivity extends BaseActivity {
         mIsStreamingStart = true;
         Log.d(ConstInfo.TAG, "StartStream");
         showLoading(getString(R.string.loading_tip));
-        PPYStream.getInstance().StartStream();
-        PPYStream.getInstance().EnableAudio(!mMuted);
+        mPPYStream.StartStream();
+        mPPYStream.EnableAudio(!mMuted);
         mStartRunableTimer = new Timer();
         mStartRunableTimer.schedule(new TimerTask() {
             @Override
@@ -362,7 +363,7 @@ public class LiveStreamingActivity extends BaseActivity {
                         if (mLastStopTime != 0 && (currentTime - mLastStopTime > MAX_STOP_TIME))
                         {
                             hideLoading();
-                            PPYRestApi.stream_stop(mLiveId, null);
+                            stream_stop();
                             show_play_end_popup();
                         }
                         else
@@ -476,7 +477,7 @@ public class LiveStreamingActivity extends BaseActivity {
             return;
         mIsStreamingStart = false;
         Log.d(ConstInfo.TAG, "StopStream");
-        PPYStream.getInstance().StopStream();
+        mPPYStream.StopStream();
 
         if (mStatusRunableTimer != null) {
             mStatusRunableTimer.cancel();
@@ -540,9 +541,9 @@ public class LiveStreamingActivity extends BaseActivity {
             config.setVideoBitrate(800);
         }
         config.setFrameRate(30);
-        PPYStream.getInstance().CreateStream(getApplicationContext(), config, mCameraView);
+        mPPYStream.CreateStream(getApplicationContext(), config, mCameraView);
 
-        PPYStream.getInstance().setPPYStatusListener(mPPStatusListener);
+        mPPYStream.setPPYStatusListener(mPPStatusListener);
     }
 
     @Override
@@ -602,7 +603,7 @@ public class LiveStreamingActivity extends BaseActivity {
         mScreenWake.disable();
 
         Log.d(ConstInfo.TAG, "onResume");
-        PPYStream.getInstance().OnResume();
+        mPPYStream.OnResume();
         mIsInBackground = false;
     }
 
@@ -613,7 +614,7 @@ public class LiveStreamingActivity extends BaseActivity {
         mScreenWake.enable();
         mLastStopTime = System.currentTimeMillis();
         Log.d(ConstInfo.TAG, "onPause mLastStopTime="+mLastStopTime);
-        PPYStream.getInstance().OnPause();
+        mPPYStream.OnPause();
         StopStream();
 
         mIsInBackground = true;
@@ -625,7 +626,7 @@ public class LiveStreamingActivity extends BaseActivity {
         super.onDestroy();
         Log.d(ConstInfo.TAG, "onDestroy");
 
-        PPYRestApi.stream_stop(mLiveId, null);
+        stream_stop();
 
         AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
         AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
@@ -633,8 +634,8 @@ public class LiveStreamingActivity extends BaseActivity {
 
         registerBaseBoradcastReceiver(false);
 
-        PPYStream.getInstance().setPPYStatusListener(null);
-        PPYStream.getInstance().OnDestroy();
+        mPPYStream.setPPYStatusListener(null);
+        mPPYStream.OnDestroy();
     }
 
     //--------------------------------------------------  界面处理 ------------------------------------------------
@@ -677,9 +678,9 @@ public class LiveStreamingActivity extends BaseActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-                PPYStream.getInstance().EnableBeauty(b);
+                mPPYStream.EnableBeauty(b);
                 if (b)
-                    PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+                    mPPYStream.SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
             }
         });
         beauty_control_container = (LinearLayout)findViewById(R.id.beauty_control_container);
@@ -705,7 +706,7 @@ public class LiveStreamingActivity extends BaseActivity {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 textview_beauty_white.setText(seekBar.getProgress()+"%");
                 mBeautyWhite = seekBar.getProgress()/100.0f;
-                PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+                mPPYStream.SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
             }
 
             @Override
@@ -725,7 +726,7 @@ public class LiveStreamingActivity extends BaseActivity {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 textview_beauty_bright.setText(seekBar.getProgress()+"%");
                 mBeautyBright = seekBar.getProgress()/100.0f;
-                PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+                mPPYStream.SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
             }
 
             @Override
@@ -745,7 +746,7 @@ public class LiveStreamingActivity extends BaseActivity {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 textview_beauty_tone.setText(seekBar.getProgress()+"%");
                 mBeautyTone = seekBar.getProgress()/100.0f;
-                PPYStream.getInstance().SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
+                mPPYStream.SetBeautyParam(mBeautyWhite, mBeautyBright, mBeautyTone);
             }
 
             @Override
@@ -779,10 +780,10 @@ public class LiveStreamingActivity extends BaseActivity {
 
                     @Override
                     public void ok() {
-                        PPYStream.getInstance().OnPause();
+                        mPPYStream.OnPause();
                         StopStream();
                         mIsInBackground = true;
-                        PPYRestApi.stream_stop(mLiveId, null);
+                        stream_stop();
 
                         show_play_end_popup();
                     }
@@ -801,19 +802,19 @@ public class LiveStreamingActivity extends BaseActivity {
             {
                 mFlashEnabled = !mFlashEnabled;
 
-                PPYStream.getInstance().setFlashLightState(mFlashEnabled);
+                mPPYStream.setFlashLightState(mFlashEnabled);
                 // 闪光灯
                 updateFlashButtonStatus();
             }
             else if (v == mMuteButton)
             {
                 mMuted = !mMuted;
-                PPYStream.getInstance().EnableAudio(!mMuted);
+                mPPYStream.EnableAudio(!mMuted);
                 updateMuteButtonStatus();
             }
             else if (v == mToggleButton)
             {
-                PPYStream.getInstance().SwitchCamera();
+                mPPYStream.SwitchCamera();
             }
             else if (v == mDataTipButton)
             {
@@ -823,7 +824,7 @@ public class LiveStreamingActivity extends BaseActivity {
             else if (v == mToggleMirrorButton)
             {
                 mFrontCameraMirror = !mFrontCameraMirror;
-                PPYStream.getInstance().EnableFrontCameraMirror(mFrontCameraMirror);
+                mPPYStream.EnableFrontCameraMirror(mFrontCameraMirror);
             }
         }
     };
@@ -838,16 +839,31 @@ public class LiveStreamingActivity extends BaseActivity {
 
             @Override
             public void ok() {
-                PPYStream.getInstance().OnPause();
+                mPPYStream.OnPause();
                 StopStream();
                 mIsInBackground = true;
-                PPYRestApi.stream_stop(mLiveId, null);
+
 
                 show_play_end_popup();
             }
         });
     }
 
+    private void stream_stop()
+    {
+        if (mLiveId.isEmpty())
+        {
+            Log.d(ConstInfo.TAG, "liveid is already stop!");
+            return;
+        }
+        PPYRestApi.stream_stop(mLiveId, new PPYRestApi.StringResultCallack() {
+            @Override
+            public void result(int errcode, String data) {
+                if (errcode == 0)
+                    mLiveId = "";
+            }
+        });
+    }
     private void updateMuteButtonStatus()
     {
         if (mMuteButton != null)
@@ -870,7 +886,7 @@ public class LiveStreamingActivity extends BaseActivity {
 
 //    private void changeVideoFilterCode(String code)
 //    {
-//        PPYStream.getInstance().EnableBeauty(mBeautyEnabled);
+//        mPPYStream.EnableBeauty(mBeautyEnabled);
 //    }
 
 //    private void updateBeautyButtonStatus()
@@ -880,6 +896,7 @@ public class LiveStreamingActivity extends BaseActivity {
 //        if (mBeautyButton != null)
 //            mBeautyButton.setBackgroundResource(imgID);
 //    }
+
 
     /**
      * 更新操作按钮

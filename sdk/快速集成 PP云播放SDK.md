@@ -44,7 +44,7 @@ dependencies {
 - 初始化SDK 
 ````java
 // 在app的application里调用初始化函数
-PPYStream.getInstance().init(this);
+PPYSdk.getInstance().init(this);
 ````
 ````java
 public class TestApplication extends Application {
@@ -54,7 +54,7 @@ public class TestApplication extends Application {
     {
         super.onCreate();
 
-        PPYStream.getInstance().init(this);
+        PPYSdk.getInstance().init(this);
     }
 }
 ````
