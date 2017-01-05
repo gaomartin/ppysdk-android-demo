@@ -46,10 +46,12 @@ PP云播放SDK主要负责直播流的播放。
 * 支持的cpu架构：armv7, arm64, x86
 
 # 三 详细SDK使用文档地址
-github上文档地址：https://github.com/pptvyun/ppysdk-android-demo
+* PP云直播推流SDK文档地址：https://github.com/pptvyun/ppysdk-android-demo/blob/master/sdk/%E5%BF%AB%E9%80%9F%E9%9B%86%E6%88%90%20PP%E4%BA%91%E6%8E%A8%E6%B5%81SDK.md
+* PP云播放SDK文档地址：https://github.com/pptvyun/ppysdk-android-demo/blob/master/sdk/%E5%BF%AB%E9%80%9F%E9%9B%86%E6%88%90%20PP%E4%BA%91%E6%92%AD%E6%94%BESDK.md
 
 # 三 下载地址
-从github下载SDK及demo工程： https://github.com/pptvyun/ppysdk-android-demo.git
+从github下载SDK及demo工程： https://github.com/pptvyun/ppysdk-android-demo
+
 
 
 
