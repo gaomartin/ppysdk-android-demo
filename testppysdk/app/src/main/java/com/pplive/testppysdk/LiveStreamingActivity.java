@@ -540,7 +540,7 @@ public class LiveStreamingActivity extends BaseActivity {
             config.setVideoResolution(VIDEO_RESOLUTION_TYPE.VIDEO_RESOLUTION_480P);
             config.setVideoBitrate(800);
         }
-        config.setFrameRate(30);
+        config.setFrameRate(24);
         mPPYStream.CreateStream(getApplicationContext(), config, mCameraView);
 
         mPPYStream.setPPYStatusListener(mPPStatusListener);
