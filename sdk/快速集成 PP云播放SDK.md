@@ -19,10 +19,10 @@ PP云播放Android SDK是pp云推出的 Android 平台上使用的软件开发�
 
 ### 配置项目
 
-引入目标库, 将推流SDK中libs目录下的库文件引入到目标工程中并添加依赖。
+引入目标库, 将SDK中libs目录下的库文件引入到目标工程中并添加依赖。
 
 可参考下述配置方式（以Android Studio为例）：
-- 将ppcloud-sdk.aar拷贝到app的libs目录下；
+- 将ppcloud-sdk-v1.1.0.aar,ppmagic-sdk-v1.1.001.aar拷贝到app的libs目录下；
 - 修改目标工程的build.gradle文件，配置repositories路径：
 ````gradle
 
@@ -34,7 +34,8 @@ PP云播放Android SDK是pp云推出的 Android 平台上使用的软件开发�
     
 dependencies {
     ...
-    compile(name: 'ppcloud-sdk', ext: 'aar')
+    compile(name: 'ppcloud-sdk-v1.1.0', ext: 'aar')
+    compile(name: 'ppmagic-sdk-v1.1.001', ext: 'aar')
     ...
 }
 ````
@@ -81,6 +82,10 @@ PPYVideoView mVideoView = (PPYVideoView)findViewById(R.id.live_player_videoview)
 ````java
 // 初始化
 mVideoView.initialize();
+// 设置视频缩放模式
+// PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING: 全屏缩放
+// PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT: 按宽等比缩放, 高不足留黑边
+mVideoView.setVideoScalingMode(PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 
 // 设置状态监听器
 mVideoView.setListener(new PPYVideoViewListener() {
@@ -203,4 +208,5 @@ protected void onDestroy()
     mVideoView.release();
 }
 ````
+
 

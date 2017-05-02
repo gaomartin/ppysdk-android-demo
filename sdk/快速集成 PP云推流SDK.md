@@ -10,7 +10,7 @@ PPY Streamer Android SDK是pp云推出的 Android 平台上使用的软件开发
 * [x] 推流协议：RTMP
 * [x] [视频分辨率]：支持360P, 480P, 540P和720P
 * [x] 音视频目标码率：可设
-* [x] 支持固定竖屏推流
+* [x] 支持固定横竖屏推流
 * [x] 支持前、后置摄像头动态切换
 * [x] 闪光灯：开/关
 * [x] [内置美颜功能]
@@ -39,7 +39,7 @@ PPY Streamer Android SDK是pp云推出的 Android 平台上使用的软件开发
 引入目标库, 将推流SDK中libs目录下的库文件引入到目标工程中并添加依赖。
 
 可参考下述配置方式（以Android Studio为例）：
-- 将ppcloud-sdk.aar拷贝到app的libs目录下；
+- 将ppcloud-sdk-v1.1.0.aar,ppmagic-sdk-v1.1.001.aar拷贝到app的libs目录下；
 - 修改目标工程的build.gradle文件，配置repositories路径：
 ````gradle
 
@@ -51,7 +51,8 @@ PPY Streamer Android SDK是pp云推出的 Android 平台上使用的软件开发
     
 dependencies {
     ...
-    compile(name: 'ppcloud-sdk', ext: 'aar')
+    compile(name: 'ppcloud-sdk-v1.1.0', ext: 'aar')
+    compile(name: 'ppmagic-sdk-v1.1.001', ext: 'aar')
     ...
 }
 ````
@@ -97,8 +98,6 @@ mCameraView = (PPYLiveView)findViewById(R.id.lsq_cameraView);
 推流过程中不可动态改变的参数需要在创建该类的对象时指定。
 ````java
 PPYStreamerConfig builder = new PPYStreamerConfig(); // use default param
-// 设置推流url
-builder.setPublishurl(url);
 /**
  * 设置推流分辨率，支持以下值：
  * VIDEO_RESOLUTION_TYPE.VIDEO_RESOLUTION_360P,
@@ -125,6 +124,8 @@ builder.setDefaultLandscape(false);
 ````java
 PPYStream mPPYStream = new PPYStream();
 
+// 设置推流url
+mPPYStream.setPublishUrl(mRtmpUrl);
 mPPYStream.CreateStream(getApplicationContext(), config, mCameraView);
 
 mPPYStream.setPPYStatusListener(new PPYStatusListener() {
