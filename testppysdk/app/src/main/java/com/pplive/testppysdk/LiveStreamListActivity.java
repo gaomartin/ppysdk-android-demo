@@ -207,6 +207,7 @@ public class LiveStreamListActivity extends BaseActivity
 													Bundle bundle = new Bundle();
 													bundle.putBundle("liveurl", data);
 													bundle.putString("liveid", videoItemInfo.getLiveid());
+													bundle.putString("channelWebId", videoItemInfo.getPlayurl());
 													bundle.putInt(FloatWindowService.PLAY_TYPE, 1); // 1: live, 0: vod
 													intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
 													startService(intent);
@@ -237,6 +238,7 @@ public class LiveStreamListActivity extends BaseActivity
 						{
 							Intent intent = new Intent(LiveStreamListActivity.this, WatchVideoActivity.class);
 							intent.putExtra("m3u8Url", PPYRestApi.get_m3u8Url(videoItemInfo.getPlayurl()));
+							intent.putExtra("channelWebId", videoItemInfo.getPlayurl());
 							startActivity(intent);
 						}
 						else
@@ -245,6 +247,7 @@ public class LiveStreamListActivity extends BaseActivity
 							Bundle bundle = new Bundle();
 							bundle.putString("m3u8Url", PPYRestApi.get_m3u8Url(videoItemInfo.getPlayurl()));
 							bundle.putInt(FloatWindowService.PLAY_TYPE, 0); // 1: live, 0: vod
+							bundle.putString("channelWebId", videoItemInfo.getPlayurl());
 							intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
 							startService(intent);
 						}

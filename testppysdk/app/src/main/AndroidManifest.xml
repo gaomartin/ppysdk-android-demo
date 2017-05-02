@@ -21,13 +21,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LiveStreamingActivity"  android:screenOrientation="portrait"
+        <activity android:name=".LiveStreamingActivity"
             android:theme="@android:style/Theme.NoTitleBar">
         </activity>
         <activity android:name=".WatchStreamingActivity" android:screenOrientation="portrait"
             >
         </activity>
-        <activity android:name=".WatchVideoActivity" android:screenOrientation="portrait">
+        <activity android:name=".WatchVideoActivity" android:screenOrientation="sensor">
         </activity>
         <activity android:name=".LiveStreamListActivity" android:screenOrientation="portrait"
             >

@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -130,6 +131,7 @@ public class LiveStreamingActivity extends BaseActivity {
     long mLastStopTime = 0;
     final long MAX_STOP_TIME = 3*60*1000; // 3分钟
     int mType = 1;
+    boolean mIsLandscape = false;
     Handler mHandle = new Handler();
 
     Runnable mHideMsgRunable = new Runnable() {
@@ -198,11 +200,14 @@ public class LiveStreamingActivity extends BaseActivity {
         mLiveId = getIntent().getStringExtra("liveid");
         mRtmpUrl = getIntent().getStringExtra("rtmpurl");
         mType = getIntent().getIntExtra("type", 0);
+        mIsLandscape = getIntent().getBooleanExtra("mode", false);
+
         mCameraView = (PPYLiveView)findViewById(R.id.lsq_cameraView);
 
         AppSettingMode.setSetting(this, "last_liveid", mLiveId);
         AppSettingMode.setSetting(this, "last_liveurl", mRtmpUrl);
         AppSettingMode.setIntSetting(this, "last_type", mType);
+        AppSettingMode.setSetting(this, "last_mode", mIsLandscape);
 
         TextView textView = (TextView)findViewById(R.id.liveid);
         textView.setText(getString(R.string.liveid_tip, mLiveId));
@@ -298,6 +303,7 @@ public class LiveStreamingActivity extends BaseActivity {
         mIsStreamingStart = true;
         Log.d(ConstInfo.TAG, "StartStream");
         showLoading(getString(R.string.loading_tip));
+        mPPYStream.setPublishUrl(mRtmpUrl);
         mPPYStream.StartStream();
         mPPYStream.EnableAudio(!mMuted);
         mStartRunableTimer = new Timer();
@@ -519,7 +525,16 @@ public class LiveStreamingActivity extends BaseActivity {
     {
         Log.d(ConstInfo.TAG, "InitStreamImpl init stream");
         PPYStreamerConfig config = new PPYStreamerConfig();
-        config.setPublishurl(mRtmpUrl);
+        config.setDefaultLandscape(!mIsLandscape);
+        if (mIsLandscape)
+        {
+            // 横屏
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        else {
+            // 竖屏
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
         if (mType == 0)
         {
             config.setVideoResolution(VIDEO_RESOLUTION_TYPE.VIDEO_RESOLUTION_480P);
@@ -542,7 +557,6 @@ public class LiveStreamingActivity extends BaseActivity {
         }
         config.setFrameRate(24);
         mPPYStream.CreateStream(getApplicationContext(), config, mCameraView);
-
         mPPYStream.setPPYStatusListener(mPPStatusListener);
     }
 
@@ -631,6 +645,7 @@ public class LiveStreamingActivity extends BaseActivity {
         AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveid", "");
         AppSettingMode.setSetting(LiveStreamingActivity.this, "last_liveurl", "");
         AppSettingMode.setIntSetting(LiveStreamingActivity.this, "last_type", 0);
+        AppSettingMode.setSetting(this, "last_mode", mIsLandscape);
 
         registerBaseBoradcastReceiver(false);
 
@@ -956,6 +971,7 @@ public class LiveStreamingActivity extends BaseActivity {
                                       {
                                           Intent intent = new Intent(LiveStreamingActivity.this, WatchVideoActivity.class);
                                           intent.putExtra("m3u8Url", mM3u8Url);
+                                          intent.putExtra("channelWebId", mChannelWebId);
                                           startActivity(intent);
                                           hide_play_end_popup();
                                       }

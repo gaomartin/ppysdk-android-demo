@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -16,10 +18,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -28,7 +32,10 @@ import android.widget.Toast;
 
 import com.pplive.ppysdk.PPYVideoView;
 import com.pplive.ppysdk.PPYVideoViewListener;
+import com.pplive.testppysdk.view.horizontalscrollview.HorizontalScrollViewAdapter;
+import com.pplive.testppysdk.view.horizontalscrollview.MyHorizontalScrollView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class WatchVideoActivity extends BaseActivity{
@@ -37,14 +44,18 @@ public class WatchVideoActivity extends BaseActivity{
     Handler mHandler = new Handler();
 
     String mM3u8Url; // m3u8
-
+    String mChannelWebId;
+    ArrayList<Ft> mFtList = new ArrayList<>();
     long mReconnectTimeout = 0;
     static final long RECONNECT_TIMEOUT = 30*1000;
     boolean mIsPlay = true;
 
     private TextView textview_video_duration;
+    private TextView textview_ft_select;
+    private boolean open_ft_pannel = false;
     private TextView mMsgTextview;
     private boolean mIsExiting = false;
+    private boolean mIsVideoScaleFullscreen = true;
     Handler mHandle = new Handler();
     Runnable mHideMsgRunable = new Runnable() {
         @Override
@@ -87,6 +98,14 @@ public class WatchVideoActivity extends BaseActivity{
     private static final long MAX_BUFFER_TIME = 10*1000;
     private SeekBar mVideoSeekbar;
     private Button button_play;
+    private MyHorizontalScrollView mMyHorizontalScrollView;
+    private HorizontalScrollViewAdapter mHorizontalScrollViewAdapter;
+    private int mCurrentFt = 0;
+    private LinearLayout ft_play_mode_control_container;
+
+    private TextView textview_scale_select;
+    private boolean open_video_scal_pannel = false;
+    private LinearLayout video_scale_mode_control_container;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,9 +116,60 @@ public class WatchVideoActivity extends BaseActivity{
         setContentView(R.layout.watch_video_activity);
 
         mM3u8Url = getIntent().getStringExtra("m3u8Url");
+        mChannelWebId = getIntent().getStringExtra("channelWebId");
+        Log.d(ConstInfo.TAG, "watchvideoactivity channelwebid="+mChannelWebId+" default m3u8url="+mM3u8Url);
 
         textview_video_duration = (TextView)findViewById(R.id.textview_video_duration);
         mMsgTextview = (TextView)findViewById(R.id.msg_live);
+        textview_ft_select = (TextView)findViewById(R.id.textview_ft_select);
+        ft_play_mode_control_container = (LinearLayout)findViewById(R.id.ft_play_mode_control_container);
+        textview_ft_select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                open_ft_pannel = !open_ft_pannel;
+                ft_play_mode_control_container.setVisibility(open_ft_pannel?View.VISIBLE:View.GONE);
+                open_video_scal_pannel = false;
+                video_scale_mode_control_container.setVisibility(open_video_scal_pannel?View.VISIBLE:View.GONE);
+            }
+        });
+
+        textview_scale_select = (TextView)findViewById(R.id.textview_scale_select);
+        video_scale_mode_control_container = (LinearLayout)findViewById(R.id.video_scale_mode_control_container);
+        textview_scale_select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                open_video_scal_pannel = !open_video_scal_pannel;
+                video_scale_mode_control_container.setVisibility(open_video_scal_pannel?View.VISIBLE:View.GONE);
+                open_ft_pannel = false;
+                ft_play_mode_control_container.setVisibility(open_ft_pannel?View.VISIBLE:View.GONE);
+            }
+        });
+
+        RadioButton scale_fitxy = (RadioButton)findViewById(R.id.scale_fitxy);
+        scale_fitxy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                open_video_scal_pannel = false;
+                video_scale_mode_control_container.setVisibility(open_video_scal_pannel?View.VISIBLE:View.GONE);
+
+                if (mVideoView != null && mIsVideoScaleFullscreen)
+                    mVideoView.setVideoScalingMode(PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+
+                mIsVideoScaleFullscreen = false;
+            }
+        });
+        RadioButton scale_fullscreen = (RadioButton)findViewById(R.id.scale_fullscreen);
+        scale_fullscreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                open_video_scal_pannel = false;
+                video_scale_mode_control_container.setVisibility(open_video_scal_pannel?View.VISIBLE:View.GONE);
+
+                if (mVideoView != null && !mIsVideoScaleFullscreen)
+                    mVideoView.setVideoScalingMode(PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                mIsVideoScaleFullscreen = true;
+            }
+        });
 
         final Button button_litter_player = (Button) findViewById(R.id.button_litter_player);
         button_litter_player.setOnClickListener(new View.OnClickListener() {
@@ -116,6 +186,7 @@ public class WatchVideoActivity extends BaseActivity{
                     Intent intent = new Intent(WatchVideoActivity.this, FloatWindowService.class);
                     Bundle bundle = new Bundle();
                     bundle.putString("m3u8Url", getCurrentUrl());
+                    bundle.putString("channelWebId", mChannelWebId);
                     bundle.putInt(FloatWindowService.PLAY_TYPE, 0); // 1: live, 0: vod
                     intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
                     startService(intent);
@@ -185,7 +256,7 @@ public class WatchVideoActivity extends BaseActivity{
 
         mVideoView = (PPYVideoView)findViewById(R.id.live_player_videoview);
         mVideoView.initialize();
-
+        mVideoView.setVideoScalingMode(mIsVideoScaleFullscreen?PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING:PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
         mVideoView.setListener(new PPYVideoViewListener() {
             @Override
             public void onPrepared() {
@@ -317,6 +388,20 @@ public class WatchVideoActivity extends BaseActivity{
                 Log.d(ConstInfo.TAG, "play setOnVideoSizeChanged w="+i+" h="+i1);
                 mVideoWidth = i;
                 mVideoHeight = i1;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+//                        if (mVideoWidth > mVideoHeight)
+//                        {
+//                            // 横屏
+//                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//                        }
+//                        else {
+//                            // 竖屏
+//                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//                        }
+                    }
+                });
             }
 
             @Override
@@ -330,11 +415,75 @@ public class WatchVideoActivity extends BaseActivity{
             }
         });
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                PPYRestApi.video_watch(mChannelWebId, new PPYRestApi.StringResultMapCallack() {
+                    @Override
+                    public void result(int errcode, Bundle result) {
+                        if (errcode == 0 && result.containsKey("m3u8sUrl"))
+                        {
+                            final ArrayList<Ft> fts = (ArrayList<Ft>)result.getSerializable("m3u8sUrl");
+                            if (fts != null && !fts.isEmpty())
+                            {
+//                                fts.add(new Ft(1, "http://player.pptvyun.com/svc/m3u8player/pl/0a2dnq6co6mjmaaL4K2dmqzhoqGdoquepw.m3u8"));
+                                mHandle.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mFtList = fts;
+                                        textview_ft_select.setVisibility(View.VISIBLE);
+                                        mHorizontalScrollViewAdapter.updateData(fts);
+                                        mMyHorizontalScrollView.initDatas(mHorizontalScrollViewAdapter);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        }).start();
+
+        mMyHorizontalScrollView = (MyHorizontalScrollView)findViewById(R.id.video_ft);
+        mHorizontalScrollViewAdapter = new HorizontalScrollViewAdapter(this);
+
+        mMyHorizontalScrollView.setOnItemClickListener(new MyHorizontalScrollView.OnItemClickListener()
+        {
+            @Override
+            public void onClick(View view, int position)
+            {
+                Log.d(ConstInfo.TAG, "mMyHorizontalScrollView click position="+position);
+
+                if (mFtList != null && !mFtList.isEmpty() && position < mFtList.size() && position >= 0)
+                {
+                    int ft = mFtList.get(position).getFt();
+                    if (ft == mCurrentFt)
+                        return;
+                    mCurrentFt = ft;
+                    open_ft_pannel = false;
+                    ft_play_mode_control_container.setVisibility(open_ft_pannel?View.VISIBLE:View.GONE);
+                    mHorizontalScrollViewAdapter.updateCurrentFt(mCurrentFt);
+                    mMyHorizontalScrollView.initDatas(mHorizontalScrollViewAdapter);
+
+                    mM3u8Url = mFtList.get(position).getUrl();
+                    stop_play();
+                    start_play();
+                }
+            }
+        });
+
         mHandle.postDelayed(mUpdateDataTipRunable, 1000);
 
         registerBaseBoradcastReceiver(true);
     }
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
 
+        if (newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+    }
     private void checkStreamStatus(final boolean need_reconnect)
     {
         runOnUiThread(new Runnable() {

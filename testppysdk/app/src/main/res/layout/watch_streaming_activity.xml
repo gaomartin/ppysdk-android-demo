@@ -230,7 +230,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:orientation="horizontal"
                 android:paddingBottom="10dp"
-
                 android:paddingTop="10dp"
                 android:background="@color/color_CCFFFFFF">
                 <ImageView

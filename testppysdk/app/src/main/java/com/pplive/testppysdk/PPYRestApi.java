@@ -42,6 +42,8 @@ public class PPYRestApi {
     public static final String LIVE_LIST            = "live/living/list";
     public static final String VIDEO_LIST            = "live/vod/list";
     public static final String STREAM_DETAIL            = "live/detail/";
+    public static final String VIDEO_WATCH            = "live/playstr/";
+
     public interface StringResultCallack
     {
         void result(int errcode, String data);
@@ -303,7 +305,56 @@ public class PPYRestApi {
             }
         });
     }
+    public static void video_watch(String channelwebid, final StringResultMapCallack resultCallack)
+    {
+        PPYRestApi.asyn_http_get(VIDEO_WATCH, channelwebid, new StringResultCallack() {
+            @Override
+            public void result(int errcode, String response) {
+                if (response != null && !response.isEmpty()) {
+                    JSONObject s = JSON.parseObject(response);
+                    if (s != null) {
+                        int err = s.getIntValue("err");
+                        if (err == 0) {
+                            JSONObject data = s.getJSONObject("data");
 
+                            Bundle bundle = new Bundle();
+                            bundle.putString("rtmpUrl", data.getString("rtmpUrl"));
+                            bundle.putString("m3u8Url", data.getString("m3u8Url"));
+                            bundle.putString("hdlUrl", data.getString("hdlUrl"));
+                            bundle.putString("channelWebId", data.getString("channelWebId"));
+
+                            JSONArray rtmpArray = data.getJSONArray("m3u8sUrl");
+                            if (rtmpArray != null)
+                            {
+                                ArrayList<Ft> fts = new ArrayList<Ft>();
+                                for (int i=0; i<rtmpArray.size(); i++)
+                                {
+                                    JSONObject tmp = rtmpArray.getJSONObject(0);
+                                    if (tmp == null)
+                                        continue;
+                                    fts.add(new Ft(tmp.getInteger("ft"), tmp.getString("m3u8Url")));
+                                }
+                                bundle.putSerializable("m3u8sUrl", fts);
+                            }
+
+                            if (resultCallack != null)
+                                resultCallack.result(0, bundle);
+                            return;
+                        }
+                        else
+                        {
+//                            String msg = s.getString("msg");
+                            if (resultCallack != null)
+                                resultCallack.result(err, null);
+                            return;
+                        }
+                    }
+                }
+                if (resultCallack != null)
+                    resultCallack.result(errcode, null);
+            }
+        });
+    }
     public static void stream_status(String liveid, final StringResultStatusCallack resultCallack)
     {
         PPYRestApi.asyn_http_get(STREAM_STATUS, liveid, new StringResultCallack() {

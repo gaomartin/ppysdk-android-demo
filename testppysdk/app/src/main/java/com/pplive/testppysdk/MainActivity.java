@@ -131,6 +131,8 @@ public class MainActivity extends BaseActivity{
 
                 final RadioGroup radio_group_container = (RadioGroup)dialogView.findViewById(R.id.radio_group_container);
                 radio_group_container.setVisibility(is_live_stream?View.VISIBLE:View.GONE);
+                final RadioGroup video_group_container = (RadioGroup)dialogView.findViewById(R.id.video_group_container);
+                video_group_container.setVisibility(is_live_stream?View.VISIBLE:View.GONE);
 
                 final EditText edit_text_room = (EditText)dialogView.findViewById(R.id.edit_text_room);
                 edit_text_room.addTextChangedListener(new TextWatcher() {
@@ -176,6 +178,15 @@ public class MainActivity extends BaseActivity{
                                         type = 2;
 
                                     result.put("type", type);
+
+                                    boolean isLandscape = false;
+                                    id = video_group_container.getCheckedRadioButtonId();
+                                    if (id == R.id.RADIO_BUTTON_PORTRAIT)
+                                        isLandscape = false;
+                                    else  if (id == R.id.RADIO_BUTTON_LANDSCAPE)
+                                        isLandscape = true;
+
+                                    result.put("isLandscape", isLandscape);
                                 }
 
                                 result2Callack.ok(result);
@@ -243,6 +254,7 @@ public class MainActivity extends BaseActivity{
 //                mIsLiveStreaming = true;
                 final int type = (int)result.get("type");
                 final String liveid = (String)result.get("liveid");
+                final boolean livemode = (boolean)result.get("isLandscape");
                 showLoading("");
                 PPYRestApi.stream_create(liveid, new PPYRestApi.StringResultCallack() {
                     @Override
@@ -264,6 +276,8 @@ public class MainActivity extends BaseActivity{
                                     intent.putExtra("rtmpurl", url);
                                     intent.putExtra("liveid", liveid);
                                     intent.putExtra("type", type);
+                                    intent.putExtra("mode", livemode);
+
                                     startActivity(intent);
                                 }
                             });
@@ -286,6 +300,7 @@ public class MainActivity extends BaseActivity{
         final String last_liveid = AppSettingMode.getSetting(this, "last_liveid", "");
         final String last_liveurl = AppSettingMode.getSetting(this, "last_liveurl", "");
         final int last_type = AppSettingMode.getIntSetting(this, "last_type", 0);
+        final boolean last_mode = AppSettingMode.getSetting(this, "last_mode", false);
         if (last_liveid == null || last_liveid.isEmpty() || last_liveurl == null || last_liveurl.isEmpty())
         {
             start_live_streaming_impl();
@@ -317,6 +332,7 @@ public class MainActivity extends BaseActivity{
                                     intent.putExtra("rtmpurl", last_liveurl);
                                     intent.putExtra("liveid", last_liveid);
                                     intent.putExtra("type", last_type);
+                                    intent.putExtra("mode", last_mode);
                                     startActivity(intent);
                                 }
                             });

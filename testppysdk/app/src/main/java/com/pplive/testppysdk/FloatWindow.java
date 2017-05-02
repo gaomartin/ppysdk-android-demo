@@ -127,6 +127,7 @@ public class FloatWindow {
                     Intent intent = new Intent(mHostService.getApplicationContext(), WatchStreamingActivity.class);
                     intent.putExtra("liveurl", mBundleParam.getBundle("liveurl"));
                     intent.putExtra("liveid", mBundleParam.getString("liveid"));
+                    intent.putExtra("channelWebId", mChannelWebId);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     //intent.putExtra("type", 1); // rtmp
                     mHostService.startActivity(intent);
@@ -137,6 +138,7 @@ public class FloatWindow {
                     Intent intent = new Intent(mHostService.getApplicationContext(), WatchVideoActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra("m3u8Url", mUrl);
+                    intent.putExtra("channelWebId", mChannelWebId);
                     mHostService.startActivity(intent);
                     mHostService.stopSelf();
                 }
@@ -236,12 +238,14 @@ public class FloatWindow {
             }
         }, 3000);
     }
+    String mChannelWebId;
     public void play(Bundle param)
     {
         mBundleParam = param;
         if (mBundleParam == null)
             return;
 
+        mChannelWebId = mBundleParam.getString("channelWebId");
         mType = mBundleParam.getInt(FloatWindowService.PLAY_TYPE);
         if (mType == 1)
         {

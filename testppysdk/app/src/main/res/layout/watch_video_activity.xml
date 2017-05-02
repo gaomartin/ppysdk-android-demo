@@ -106,6 +106,169 @@
                 android:layout_marginLeft="10dp"
                 android:background="@drawable/litter_player"
                 />
+            <TextView
+                android:background="@drawable/toast_bg"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:id="@+id/textview_ft_select"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:textAlignment="center"
+                android:text="清晰度"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:clickable="true"
+                android:textColor="@color/color_FFFEFEFE"/>
+            <TextView
+                android:background="@drawable/toast_bg"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:id="@+id/textview_scale_select"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:textAlignment="center"
+                android:text="拉伸模式"
+                android:visibility="visible"
+                android:textSize="16sp"
+                android:clickable="true"
+                android:textColor="@color/color_FFFEFEFE"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/video_scale_mode_control_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_CCF5F5F5"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="horizontal"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:background="@color/color_CCFFFFFF">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/qingxidu"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="18sp"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/color_BF000000"
+                    android:text="拉伸模式"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/color_CCC5C5C5"></LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="horizontal">
+
+                    <RadioGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/color_CCF5F5F5"
+                        android:orientation="horizontal"
+                        android:paddingTop="20dp"
+                        android:paddingBottom="20dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp">
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:textAlignment="center"
+                            android:text="等比例缩放"
+                            android:textSize="@dimen/button_text_size"
+                            android:textColor="@color/rtmp_bg_text_color"
+                            android:button="@null"
+                            android:clickable="false"
+                            android:background="@drawable/button_rtmp_mode_bg"
+                            android:id="@+id/scale_fitxy"/>
+
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:textAlignment="center"
+                            android:text="全屏缩放"
+                            android:textSize="@dimen/button_text_size"
+                            android:textColor="@color/rtmp_bg_text_color"
+                            android:button="@null"
+                            android:clickable="false"
+                            android:checked="true"
+                            android:background="@drawable/button_rtmp_mode_bg"
+                            android:id="@+id/scale_fullscreen"/>
+                    </RadioGroup>
+
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ft_play_mode_control_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_CCF5F5F5"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="horizontal"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:background="@color/color_CCFFFFFF">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/qingxidu"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="18sp"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/color_BF000000"
+                    android:text="清晰度"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/color_CCC5C5C5"></LinearLayout>
+
+            <com.pplive.testppysdk.view.horizontalscrollview.MyHorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/color_CCF5F5F5"
+                android:layout_alignParentBottom="true"
+                android:scrollbars="none"
+                android:id="@+id/video_ft"
+                >
+                <LinearLayout
+                    android:id="@+id/id_gallery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal" >
+                </LinearLayout>
+            </com.pplive.testppysdk.view.horizontalscrollview.MyHorizontalScrollView>
+
         </LinearLayout>
 
     </LinearLayout>

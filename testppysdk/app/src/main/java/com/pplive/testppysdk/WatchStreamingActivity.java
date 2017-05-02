@@ -152,6 +152,7 @@ public class WatchStreamingActivity extends BaseActivity{
                     Bundle bundle = new Bundle();
                     bundle.putBundle("liveurl", mBundleParam);
                     bundle.putString("liveid", mLiveId);
+                    bundle.putString("channelWebId", mChannelWebId);
                     bundle.putInt(FloatWindowService.PLAY_TYPE, 1); // 1: live, 0: vod
                     intent.putExtra(FloatWindowService.ACTION_PLAY, bundle);
                     startService(intent);
@@ -261,6 +262,7 @@ public class WatchStreamingActivity extends BaseActivity{
 
         mVideoView = (PPYVideoView)findViewById(R.id.live_player_videoview);
         mVideoView.initialize();
+        mVideoView.setVideoScalingMode(PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT); // 设置视频裁剪模式
         mVideoView.setListener(new PPYVideoViewListener() {
             @Override
             public void onPrepared() {
@@ -735,6 +737,7 @@ public class WatchStreamingActivity extends BaseActivity{
                                     {
                                         Intent intent = new Intent(WatchStreamingActivity.this, WatchVideoActivity.class);
                                         intent.putExtra("m3u8Url", mM3u8Url);
+                                        intent.putExtra("channelWebId", mChannelWebId);
                                         startActivity(intent);
                                         finish();
                                     }
