@@ -31,37 +31,36 @@ import cz.msebera.android.httpclient.util.EntityUtils;
  */
 public class PPYRestApi {
 
-    public static final String PPYUN_HOST           = "http://115.231.44.26:8081/";
+    public static final String PPYUN_HOST = "http://115.231.44.26:8081/";
 //    public static final String PPYUN_HOST           = "http://10.200.48.32:8080/";
 
-    public static final String STREAM_CREATE        = "live/create/";
-    public static final String STREAM_START         = "live/start/";
-    public static final String STREAM_STOP          = "live/stop/";
-    public static final String STREAM_WATCH         = "live/watch/";
-    public static final String STREAM_STATUS        = "live/status/";
-    public static final String LIVE_LIST            = "live/living/list";
-    public static final String VIDEO_LIST            = "live/vod/list";
-    public static final String STREAM_DETAIL            = "live/detail/";
-    public static final String VIDEO_WATCH            = "live/playstr/";
+    public static final String STREAM_CREATE = "live/create/";
+    public static final String STREAM_START = "live/start/";
+    public static final String STREAM_STOP = "live/stop/";
+    public static final String STREAM_WATCH = "live/watch/";
+    public static final String STREAM_STATUS = "live/status/";
+    public static final String LIVE_LIST = "live/living/list";
+    public static final String VIDEO_LIST = "live/vod/list";
+    public static final String STREAM_DETAIL = "live/detail/";
+    public static final String VIDEO_WATCH = "live/playstr/";
 
-    public interface StringResultCallack
-    {
+    public interface StringResultCallack {
         void result(int errcode, String data);
     }
-    public interface StringResultWatchCallack
-    {
+
+    public interface StringResultWatchCallack {
         void result(int errcode, String rtmpurl, String live2url);
     }
-    public interface StringResultMapCallack
-    {
+
+    public interface StringResultMapCallack {
         void result(int errcode, Bundle result);
     }
-    public interface StringResultStatusCallack
-    {
+
+    public interface StringResultStatusCallack {
         void result(int errcode, String livestatus, String streamstatus);
     }
-    private static String sync_http_get(String strUrl)
-    {
+
+    private static String sync_http_get(String strUrl) {
         Log.d(ConstInfo.TAG, "get url: " + strUrl);
         String strResult = "";
         try {
@@ -88,14 +87,15 @@ public class PPYRestApi {
         Log.d(ConstInfo.TAG, "reply: " + strResult);
         return strResult;
     }
-    public static void asyn_http_get(String relative_url, String liveid, final PPYRestApi.StringResultCallack callack)
-    {
-        new AsyncTaskHttpClient(getAbsoluteUrl(relative_url)+liveid, callack).execute();
+
+    public static void asyn_http_get(String relative_url, String liveid, final PPYRestApi.StringResultCallack callack) {
+        new AsyncTaskHttpClient(getAbsoluteUrl(relative_url) + liveid, callack).execute();
     }
-    public static void asyn_http_get(String url, final PPYRestApi.StringResultCallack callack)
-    {
+
+    public static void asyn_http_get(String url, final PPYRestApi.StringResultCallack callack) {
         new AsyncTaskHttpClient(url, callack).execute();
     }
+
     private static class AsyncTaskHttpClient extends AsyncTask<Integer, Integer, String> {
         private String mUrl;
         private PPYRestApi.StringResultCallack mCallback;
@@ -151,12 +151,10 @@ public class PPYRestApi {
     }
 
     private static HashMap<String, StringResultCallack> mMapResult = new HashMap<>();
-    public static void stream_create(String liveid, final StringResultCallack resultCallack)
-    {
-        synchronized (mMapResult)
-        {
-            for (String id : mMapResult.keySet())
-            {
+
+    public static void stream_create(String liveid, final StringResultCallack resultCallack) {
+        synchronized (mMapResult) {
+            for (String id : mMapResult.keySet()) {
                 mMapResult.put(id, null);
             }
         }
@@ -182,9 +180,7 @@ public class PPYRestApi {
                                 targetResult.result(0, publicUrl + "/" + token);
                             mMapResult.remove(uuid);
                             return;
-                        }
-                        else
-                        {
+                        } else {
                             String msg = s.getString("msg");
                             StringResultCallack targetResult = mMapResult.get(uuid);
                             if (targetResult != null)
@@ -202,8 +198,7 @@ public class PPYRestApi {
         });
     }
 
-    public static void stream_start(String liveid, final StringResultCallack resultCallack)
-    {
+    public static void stream_start(String liveid, final StringResultCallack resultCallack) {
         PPYRestApi.asyn_http_get(STREAM_START, liveid, new StringResultCallack() {
             @Override
             public void result(int errcode, String response) {
@@ -215,9 +210,7 @@ public class PPYRestApi {
                             if (resultCallack != null)
                                 resultCallack.result(0, "");
                             return;
-                        }
-                        else
-                        {
+                        } else {
                             String msg = s.getString("msg");
                             if (resultCallack != null)
                                 resultCallack.result(err, msg);
@@ -230,8 +223,8 @@ public class PPYRestApi {
             }
         });
     }
-    public static void stream_stop(String liveid, final StringResultCallack resultCallack)
-    {
+
+    public static void stream_stop(String liveid, final StringResultCallack resultCallack) {
         PPYRestApi.asyn_http_get(STREAM_STOP, liveid, new StringResultCallack() {
             @Override
             public void result(int errcode, String response) {
@@ -243,12 +236,10 @@ public class PPYRestApi {
                             if (resultCallack != null)
                                 resultCallack.result(0, "");
                             return;
-                        }
-                        else
-                        {
+                        } else {
                             String msg = s.getString("msg");
                             if (resultCallack != null)
-                                resultCallack.result(err,msg);
+                                resultCallack.result(err, msg);
                             return;
                         }
                     }
@@ -258,8 +249,8 @@ public class PPYRestApi {
             }
         });
     }
-    public static void stream_watch(String liveid, final StringResultMapCallack resultCallack)
-    {
+
+    public static void stream_watch(String liveid, final StringResultMapCallack resultCallack) {
         PPYRestApi.asyn_http_get(STREAM_WATCH, liveid, new StringResultCallack() {
             @Override
             public void result(int errcode, String response) {
@@ -277,11 +268,9 @@ public class PPYRestApi {
                             bundle.putString("channelWebId", data.getString("channelWebId"));
 
                             JSONArray rtmpArray = data.getJSONArray("rtmpsUrl");
-                            if (rtmpArray != null)
-                            {
+                            if (rtmpArray != null) {
                                 ArrayList<String> rtmpsUrl = new ArrayList<String>();
-                                for (int i=0; i<rtmpArray.size(); i++)
-                                {
+                                for (int i = 0; i < rtmpArray.size(); i++) {
                                     rtmpsUrl.add(rtmpArray.getString(i));
                                 }
                                 bundle.putStringArrayList("rtmpsUrl", rtmpsUrl);
@@ -290,9 +279,7 @@ public class PPYRestApi {
                             if (resultCallack != null)
                                 resultCallack.result(0, bundle);
                             return;
-                        }
-                        else
-                        {
+                        } else {
 //                            String msg = s.getString("msg");
                             if (resultCallack != null)
                                 resultCallack.result(err, null);
@@ -305,8 +292,8 @@ public class PPYRestApi {
             }
         });
     }
-    public static void video_watch(String channelwebid, final StringResultMapCallack resultCallack)
-    {
+
+    public static void video_watch(String channelwebid, final StringResultMapCallack resultCallack) {
         PPYRestApi.asyn_http_get(VIDEO_WATCH, channelwebid, new StringResultCallack() {
             @Override
             public void result(int errcode, String response) {
@@ -324,11 +311,9 @@ public class PPYRestApi {
                             bundle.putString("channelWebId", data.getString("channelWebId"));
 
                             JSONArray rtmpArray = data.getJSONArray("m3u8sUrl");
-                            if (rtmpArray != null)
-                            {
+                            if (rtmpArray != null) {
                                 ArrayList<Ft> fts = new ArrayList<Ft>();
-                                for (int i=0; i<rtmpArray.size(); i++)
-                                {
+                                for (int i = 0; i < rtmpArray.size(); i++) {
                                     JSONObject tmp = rtmpArray.getJSONObject(0);
                                     if (tmp == null)
                                         continue;
@@ -340,9 +325,7 @@ public class PPYRestApi {
                             if (resultCallack != null)
                                 resultCallack.result(0, bundle);
                             return;
-                        }
-                        else
-                        {
+                        } else {
 //                            String msg = s.getString("msg");
                             if (resultCallack != null)
                                 resultCallack.result(err, null);
@@ -355,8 +338,8 @@ public class PPYRestApi {
             }
         });
     }
-    public static void stream_status(String liveid, final StringResultStatusCallack resultCallack)
-    {
+
+    public static void stream_status(String liveid, final StringResultStatusCallack resultCallack) {
         PPYRestApi.asyn_http_get(STREAM_STATUS, liveid, new StringResultCallack() {
             @Override
             public void result(int errcode, String response) {
@@ -369,17 +352,14 @@ public class PPYRestApi {
                             JSONObject data = s.getJSONObject("data");
                             String liveStatus = data.getString("liveStatus");
                             String streamStatus = data.getString("streamStatus");
-                            if (resultCallack != null)
-                            {
+                            if (resultCallack != null) {
                                 resultCallack.result(0, liveStatus, streamStatus);
                             }
                             return;
-                        }
-                        else
-                        {
+                        } else {
                             String msg = s.getString("msg");
                             if (resultCallack != null)
-                                resultCallack.result(err,"", "");
+                                resultCallack.result(err, "", "");
                             return;
                         }
                     }
@@ -390,16 +370,13 @@ public class PPYRestApi {
         });
     }
 
-    public static void get_watch_list(final int type, int page_index, int page_size, final ArrayListResultCallack<VideoItemInfo> resultCallack)
-    {
+    public static void get_watch_list(final int type, int page_index, int page_size, final ArrayListResultCallack<VideoItemInfo> resultCallack) {
         String url;
-        if (type == 1)
-        {
+        if (type == 1) {
             // live
-            url = PPYUN_HOST+LIVE_LIST+"?page_num="+page_index+"&page_size="+page_size;
-        }
-        else
-            url = PPYUN_HOST+VIDEO_LIST+"?page_num="+page_index+"&page_size="+page_size;
+            url = PPYUN_HOST + LIVE_LIST + "?page_num=" + page_index + "&page_size=" + page_size;
+        } else
+            url = PPYUN_HOST + VIDEO_LIST + "?page_num=" + page_index + "&page_size=" + page_size;
 
 
         PPYRestApi.asyn_http_get(url, new StringResultCallack() {
@@ -412,10 +389,8 @@ public class PPYRestApi {
                         if (err == 0) {
                             JSONArray data = s.getJSONArray("data");
                             ArrayList<VideoItemInfo> itemInfos = new ArrayList<VideoItemInfo>();
-                            if (data != null)
-                            {
-                                for (int i=0; i<data.size(); i++)
-                                {
+                            if (data != null) {
+                                for (int i = 0; i < data.size(); i++) {
                                     JSONObject object = data.getJSONObject(i);
                                     if (object == null)
                                         continue;
@@ -437,9 +412,7 @@ public class PPYRestApi {
                             if (resultCallack != null)
                                 resultCallack.result(0, itemInfos);
                             return;
-                        }
-                        else
-                        {
+                        } else {
 //                            String msg = s.getString("msg");
                             if (resultCallack != null)
                                 resultCallack.result(err, null);
@@ -453,9 +426,8 @@ public class PPYRestApi {
         });
     }
 
-    public static void stream_detail(final String channel_id, final StringResultMapCallack resultCallack)
-    {
-        PPYRestApi.asyn_http_get(PPYUN_HOST+STREAM_DETAIL+channel_id, new StringResultCallack() {
+    public static void stream_detail(final String channel_id, final StringResultMapCallack resultCallack) {
+        PPYRestApi.asyn_http_get(PPYUN_HOST + STREAM_DETAIL + channel_id, new StringResultCallack() {
             @Override
             public void result(int errcode, String response) {
                 if (response != null && !response.isEmpty()) {
@@ -471,9 +443,7 @@ public class PPYRestApi {
                             if (resultCallack != null)
                                 resultCallack.result(0, bundle);
                             return;
-                        }
-                        else
-                        {
+                        } else {
 //                            String msg = s.getString("msg");
                             if (resultCallack != null)
                                 resultCallack.result(err, null);
@@ -487,8 +457,7 @@ public class PPYRestApi {
         });
     }
 
-    public static String get_m3u8Url(String channel_web_id)
-    {
-        return "http://player.pptvyun.com/svc/m3u8player/pl/"+channel_web_id+".m3u8";
+    public static String get_m3u8Url(String channel_web_id) {
+        return "http://player.pptvyun.com/svc/m3u8player/pl/" + channel_web_id + ".m3u8";
     }
 }

@@ -37,6 +37,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -46,6 +47,7 @@ import com.pplive.ppysdk.PPYLiveView;
 import com.pplive.ppysdk.PPYStatusListener;
 import com.pplive.ppysdk.PPYStream;
 import com.pplive.ppysdk.PPYStreamerConfig;
+import com.pplive.ppysdk.PPYVideoView;
 import com.pplive.ppysdk.VIDEO_RESOLUTION_TYPE;
 
 import java.util.Timer;
@@ -525,7 +527,7 @@ public class LiveStreamingActivity extends BaseActivity {
     {
         Log.d(ConstInfo.TAG, "InitStreamImpl init stream");
         PPYStreamerConfig config = new PPYStreamerConfig();
-        config.setDefaultLandscape(!mIsLandscape);
+        config.setDefaultLandscape(mIsLandscape);
         if (mIsLandscape)
         {
             // 横屏
@@ -661,6 +663,8 @@ public class LiveStreamingActivity extends BaseActivity {
     float mBeautyWhite = 0.5f;
     float mBeautyBright = 0.5f;
     float mBeautyTone = 0.5f;
+
+
     private void initView()
     {
         mMsgTextview = (TextView)findViewById(R.id.msg_live);
@@ -713,6 +717,7 @@ public class LiveStreamingActivity extends BaseActivity {
                 beauty_control_container.setVisibility(View.GONE);
             }
         });
+
 
         final TextView textview_beauty_white = (TextView)findViewById(R.id.textview_beauty_white);
         SeekBar seekbar_beauty_white = (SeekBar)findViewById(R.id.seekbar_beauty_white);

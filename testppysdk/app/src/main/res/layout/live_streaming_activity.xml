@@ -99,6 +99,7 @@
                 android:layout_marginLeft="10dp"
                 android:scaleType="center"
                 android:background="@drawable/up" />
+
         </LinearLayout>
         <LinearLayout
             android:id="@+id/beauty_control_container"

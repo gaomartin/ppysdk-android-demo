@@ -22,7 +22,7 @@
         </activity>
 
         <activity android:name=".LiveStreamingActivity"
-            android:theme="@android:style/Theme.NoTitleBar">
+            android:theme="@android:style/Theme.NoTitleBar" android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
         <activity android:name=".WatchStreamingActivity" android:screenOrientation="portrait"
             >

@@ -8,8 +8,8 @@ android {
         applicationId "com.pplive.testppysdk"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 114
+        versionName "1.1.4"
     }
     signingConfigs{
         MysigningConfigs{
@@ -20,6 +20,9 @@ android {
         }
     }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.MysigningConfigs
+        }
         release {
             signingConfig signingConfigs.MysigningConfigs
             minifyEnabled false
@@ -29,8 +32,7 @@ android {
 
     sourceSets {
         main {
-            java.srcDirs = ["/src/main/java"]
-            jniLibs.srcDirs = ["/src/main/jniLibs"]
+            jniLibs.srcDirs = ['libs']
         }
     }
     repositories {
@@ -43,8 +45,8 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile(name: 'ppcloud-sdk-v1.1.0', ext: 'aar')
-    compile(name: 'ppmagic-sdk-v1.1.001', ext: 'aar')
+    compile(name: 'ppcloud-sdk-v1.1.4', ext: 'aar')
+    compile(name: 'ppmagic-sdk-v1.0.4', ext: 'aar')
     compile 'cz.msebera.android:httpclient:4.3.6'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     compile 'com.alibaba:fastjson:1.2.15'

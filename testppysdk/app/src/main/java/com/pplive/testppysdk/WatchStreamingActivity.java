@@ -106,6 +106,11 @@ public class WatchStreamingActivity extends BaseActivity{
     private static final long MAX_BUFFER_TIME = 10*1000;
     private boolean mIsShowPlayType = false;
     private TextView textview_play_type;
+
+    private TextView textview_scale_select;
+    private boolean open_video_scal_pannel = false;
+    private LinearLayout video_scale_mode_control_container;
+    private boolean mIsVideoScaleFullscreen = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -231,9 +236,11 @@ public class WatchStreamingActivity extends BaseActivity{
             @Override
             public void onClick(View view) {
                 rtmp_play_mode_control_container.setVisibility(rtmp_play_mode_control_container.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);
+
+                open_video_scal_pannel = false;
+                video_scale_mode_control_container.setVisibility(open_video_scal_pannel?View.VISIBLE:View.GONE);
             }
         });
-
 
 
         final RadioGroup radio_group_container = (RadioGroup)findViewById(R.id.radio_group_container);
@@ -260,9 +267,50 @@ public class WatchStreamingActivity extends BaseActivity{
             }
         });
 
+        textview_scale_select = (TextView)findViewById(R.id.textview_scale_select);
+        video_scale_mode_control_container = (LinearLayout)findViewById(R.id.video_scale_mode_control_container);
+        textview_scale_select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                open_video_scal_pannel = !open_video_scal_pannel;
+                video_scale_mode_control_container.setVisibility(open_video_scal_pannel?View.VISIBLE:View.GONE);
+
+                rtmp_play_mode_control_container.setVisibility(View.GONE);
+
+                mIsShowPlayType = false;
+                play_type_control_container.setVisibility(mIsShowPlayType?View.VISIBLE:View.GONE);
+            }
+        });
+
+        RadioButton scale_fitxy = (RadioButton)findViewById(R.id.scale_fitxy);
+        scale_fitxy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                open_video_scal_pannel = false;
+                video_scale_mode_control_container.setVisibility(open_video_scal_pannel?View.VISIBLE:View.GONE);
+
+                if (mVideoView != null && mIsVideoScaleFullscreen)
+                    mVideoView.setVideoScalingMode(PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+
+                mIsVideoScaleFullscreen = false;
+            }
+        });
+        RadioButton scale_fullscreen = (RadioButton)findViewById(R.id.scale_fullscreen);
+        scale_fullscreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                open_video_scal_pannel = false;
+                video_scale_mode_control_container.setVisibility(open_video_scal_pannel?View.VISIBLE:View.GONE);
+
+                if (mVideoView != null && !mIsVideoScaleFullscreen)
+                    mVideoView.setVideoScalingMode(PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                mIsVideoScaleFullscreen = true;
+            }
+        });
+
         mVideoView = (PPYVideoView)findViewById(R.id.live_player_videoview);
         mVideoView.initialize();
-        mVideoView.setVideoScalingMode(PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT); // 设置视频裁剪模式
+        mVideoView.setVideoScalingMode(mIsVideoScaleFullscreen?PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING:PPYVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
         mVideoView.setListener(new PPYVideoViewListener() {
             @Override
             public void onPrepared() {
@@ -459,7 +507,7 @@ public class WatchStreamingActivity extends BaseActivity{
                         hide_play_error_popup();
                         show_play_end_popup();
                     }
-                    else if ((livestatus.equals("living") || livestatus.equals("broken"))&& streamstatus.equals("error"))
+                    else if ((livestatus.equals("living") || livestatus.equals("broken")) && streamstatus.equals("error"))
                     {
                         show_play_error_popup();
 
